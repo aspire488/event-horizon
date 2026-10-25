@@ -2,6 +2,8 @@
 
 An interactive cosmic physics sandbox where you manipulate gravity, black holes, supernovas, and orbital systems in a living universe. The existing in-app label remains GOD MODE.
 
+** Live Demo:** [event-horizon-teal.vercel.app](https://event-horizon-teal.vercel.app)
+
 ![EVENT HORIZON running in the production preview](artifacts/user-acceptance/session-a-first-contact-1440x900.png)
 
 ## Features
@@ -81,6 +83,8 @@ The browser checks use headless Chromium with SwiftShader software WebGL in this
 ## Deploy to Vercel
 
 This is a static Vite app. Import the repository in Vercel and use the Vite preset, `npm ci` for installation, `npm run build` as the build command, and `dist` as the output directory. No backend or environment variables are required. The project does not use client-side URL routes, so no SPA rewrite is needed.
+
+Production deployment: [event-horizon-teal.vercel.app](https://event-horizon-teal.vercel.app).
 
 ## License
 
