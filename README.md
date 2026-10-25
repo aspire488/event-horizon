@@ -194,7 +194,7 @@ Bug reports and ideas are welcome as [issues](https://github.com/aspire488/event
 
 ## License
 
-No open-source license has been selected or included. Licensing and redistribution terms remain to be decided.
+Event Horizon is licensed under the [MIT License](LICENSE). You may use, modify, and distribute the software under its terms; retain the copyright and license notice in copies or substantial portions of the software.
 
 <br>
 
