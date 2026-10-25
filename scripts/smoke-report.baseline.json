@@ -1,0 +1,25 @@
+{
+  "base": "http://localhost:4173/",
+  "passed": 17,
+  "failed": 0,
+  "failures": [],
+  "notes": [
+    "PASS  the application boots with a live universe  (8 ms)",
+    "PASS  the canvas renders a non-empty scene  (923 ms)",
+    "PASS  pause and resume control the simulation clock  (1914 ms)",
+    "PASS  a gravity well bends a particle trajectory  (1297 ms)",
+    "PASS  a black hole absorbs matter  (4323 ms)",
+    "PASS  a supernova emits a shockwave that moves matter  (2003 ms)",
+    "PASS  scenarios load distinct states through the interface  (3619 ms)",
+    "PASS  undo and redo restore object edits  (1099 ms)",
+    "PASS  painting matter and launching an orbit work  (3470 ms)",
+    "PASS  reset rebuilds the scenario and undo restores the previous universe  (1393 ms)",
+    "PASS  experiments save locally and survive a reload  (3570 ms)",
+    "PASS  JSON export and import round-trip through the UI  (1466 ms)",
+    "PASS  the performance readout reports engine measurements  (746 ms)",
+    "PASS  help overlay, labels and hide-interface controls work  (782 ms)",
+    "PASS  the layout stays usable on laptop and narrow screens  (2414 ms)",
+    "PASS  a first-time visitor gets sample experiments and a hint  (3047 ms)",
+    "PASS  no critical runtime errors were logged  (1 ms)"
+  ]
+}

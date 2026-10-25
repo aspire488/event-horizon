@@ -1,0 +1,199 @@
+{
+  "startedAt": "2026-10-25T11:56:58.173Z",
+  "environment": {
+    "browser": "Playwright isolated Chromium",
+    "browserVersion": "156.0.8078.47",
+    "headless": true
+  },
+  "results": [
+    {
+      "name": "Retest force controls and drag at a verified empty canvas location while running",
+      "status": "PASS",
+      "durationMs": 0,
+      "evidence": {
+        "placement": {
+          "x": 100,
+          "y": 110
+        },
+        "edges": {
+          "mass": 0,
+          "radius": 70,
+          "influence": 2200,
+          "strength": 0.1
+        },
+        "selectedWell": {
+          "id": 4,
+          "kind": "well",
+          "x": -1641.8818383034238,
+          "y": 882.7366407858898,
+          "mass": 0,
+          "radius": 70,
+          "influence": 2200,
+          "strength": 0.1
+        },
+        "dragged": true,
+        "screenshot": "artifacts\\user-acceptance\\force-lab-retest-final.png"
+      }
+    },
+    {
+      "name": "Retest save/import/checkpoint and rewind after explicitly resuming",
+      "status": "PASS",
+      "durationMs": 0,
+      "evidence": {
+        "beforeFrames": [
+          0,
+          3.016666666666661,
+          6.099999999999984
+        ],
+        "rewoundTo": 0,
+        "paused": true,
+        "newBranch": true
+      }
+    },
+    {
+      "name": "Retest hide-interface after moving focus out of range control",
+      "status": "PASS",
+      "durationMs": 0,
+      "evidence": {
+        "hidden": true,
+        "restored": true
+      }
+    },
+    {
+      "name": "Mobile archive toast visual and actionability check",
+      "status": "PASS",
+      "durationMs": 0,
+      "evidence": {
+        "file": "artifacts\\user-acceptance\\mobile-archive-toast.png",
+        "geometry": {
+          "toast": {
+            "left": 104.90625,
+            "right": 285.078125,
+            "top": 567,
+            "bottom": 597
+          },
+          "panel": {
+            "left": 60,
+            "right": 380,
+            "top": 56,
+            "bottom": 652
+          },
+          "rows": [
+            {
+              "top": 206.4375,
+              "bottom": 245.4375,
+              "buttons": [
+                {
+                  "title": "",
+                  "top": 216.4375,
+                  "bottom": 234.4375,
+                  "left": 260.953125,
+                  "right": 296
+                },
+                {
+                  "title": "Rename",
+                  "top": 214.4375,
+                  "bottom": 236.4375,
+                  "left": 297,
+                  "right": 319
+                },
+                {
+                  "title": "Export JSON",
+                  "top": 214.4375,
+                  "bottom": 236.4375,
+                  "left": 320,
+                  "right": 342
+                },
+                {
+                  "title": "Delete",
+                  "top": 214.4375,
+                  "bottom": 236.4375,
+                  "left": 343,
+                  "right": 365
+                }
+              ]
+            },
+            {
+              "top": 245.4375,
+              "bottom": 284.4375,
+              "buttons": [
+                {
+                  "title": "",
+                  "top": 255.4375,
+                  "bottom": 273.4375,
+                  "left": 260.953125,
+                  "right": 296
+                },
+                {
+                  "title": "Rename",
+                  "top": 253.4375,
+                  "bottom": 275.4375,
+                  "left": 297,
+                  "right": 319
+                },
+                {
+                  "title": "Export JSON",
+                  "top": 253.4375,
+                  "bottom": 275.4375,
+                  "left": 320,
+                  "right": 342
+                },
+                {
+                  "title": "Delete",
+                  "top": 253.4375,
+                  "bottom": 275.4375,
+                  "left": 343,
+                  "right": 365
+                }
+              ]
+            },
+            {
+              "top": 284.4375,
+              "bottom": 323.4375,
+              "buttons": [
+                {
+                  "title": "",
+                  "top": 294.4375,
+                  "bottom": 312.4375,
+                  "left": 260.953125,
+                  "right": 296
+                },
+                {
+                  "title": "Rename",
+                  "top": 292.4375,
+                  "bottom": 314.4375,
+                  "left": 297,
+                  "right": 319
+                },
+                {
+                  "title": "Export JSON",
+                  "top": 292.4375,
+                  "bottom": 314.4375,
+                  "left": 320,
+                  "right": 342
+                },
+                {
+                  "title": "Delete",
+                  "top": 292.4375,
+                  "bottom": 314.4375,
+                  "left": 343,
+                  "right": 365
+                }
+              ]
+            }
+          ]
+        },
+        "toastOverSaveAction": false
+      }
+    }
+  ],
+  "counts": {
+    "pass": 4,
+    "fail": 0
+  },
+  "console": {
+    "pageErrors": [],
+    "consoleErrors": [],
+    "failedRequests": []
+  }
+}

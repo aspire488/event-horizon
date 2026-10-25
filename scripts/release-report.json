@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-10-25T12:25:29Z",
+  "project": "EVENT HORIZON",
+  "environment": {"os":"Windows","node":"v24.18.0","npm":"11.16.0","browser":"Chromium 156.0.8078.47","graphics":"SwiftShader software WebGL"},
+  "checks": {
+    "npmCi": {"status":"PASS","result":"56 packages installed from package-lock.json; zero vulnerabilities."},
+    "npmAudit": {"status":"PASS","result":"0 vulnerabilities."},
+    "typecheck": {"status":"PASS","command":"npm run typecheck"},
+    "unit": {"status":"PASS","passed":46,"failed":0,"testFiles":7},
+    "build": {"status":"PASS","command":"npm run build","vite":"7.3.7","output":"dist"},
+    "productionSmoke": {"status":"PASS","passed":18,"failed":0,"report":"scripts/user-acceptance-smoke-report.json"},
+    "userAcceptance": {"status":"PASS_WITH_SKIPPED_REPEAT","passed":11,"failed":0,"notTested":1,"extendedSessionPriorRun":{"status":"PASS","durationSeconds":600.9,"cycles":40},"report":"scripts/user-acceptance-report.json"},
+    "productionPreview": {"status":"PASS","url":"http://localhost:4173/","httpStatus":200,"faviconStatus":200,"latestBundle":"assets/index-CfGrpo7q.js"},
+    "securityScan": {"status":"PASS","method":"rg filename-only scan for common GitHub/AWS/private-key token formats; no matches"},
+    "dependencyLicenses": {"status":"PASS","lockedPackages":106,"unknown":0,"licenseCounts":{"MIT":99,"Apache-2.0":3,"BSD-3-Clause":2,"ISC":2}},
+    "integrationTests": {"status":"NOT_CONFIGURED","note":"No separate integration suite exists; browser smoke and UAT run against production preview."}
+  },
+  "sourceChanges": ["Upgraded Vite 5 to 7.3.7 and Vitest 2 to 4.1.12 to remove six npm audit advisories; zero remained after update.","Moved Vitest configuration typing to vitest/config for current toolchain compatibility.","Updated package name and supported Node floor; refreshed lockfile.","Updated README for EVENT HORIZON, release commands, screenshot, controls, deployment, limitations, and unselected license.","Fixed favicon 404 and added smoke regression assertion.","Made import smoke assertion rely on durable import event/state rather than transient toast timing.","Corrected .gitignore so lockfile and QA/UAT reports remain publishable while local/generated directories remain excluded."],
+  "repository": {"githubAccount":"aspire488","requestedName":"event-horizon","availability":"available under authenticated account at check time","url":null,"visibility":null,"defaultBranch":"main","localGit":"initialized locally on main; initial commit created; no remote configured","pushStatus":"BLOCKED: gh auth status reports not logged into any GitHub host after removing invalid GITHUB_TOKEN override","requiredNextStep":"gh auth login -h github.com -p https -w"},
+  "deployment": {"provider":"Vercel","status":"BLOCKED: no CLI, auth profile, or connected deployment integration available","url":null,"deploymentAttempted":false,"requiredNextStep":"npx vercel login, then npx vercel --prod"},
+  "limitations": ["Physical GPU measurement unavailable; software WebGL used.","Physical touch, browser zoom extremes, and WebGL context-loss injection not tested.","A separate integration suite is not configured.","Public GitHub creation/push and Vercel deployment await interactive account authorization."],
+  "preservedReports": ["scripts/smoke-report.baseline.json","scripts/qa-report.json","scripts/qa-smoke-report.json","scripts/user-acceptance-report.json","artifacts/user-acceptance/"],
+  "projectLicense": "Not selected; no LICENSE file created."
+}

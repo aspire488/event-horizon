@@ -1,0 +1,31 @@
+{
+  "name": "event-horizon",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "GOD MODE — a browser cosmic physics sandbox",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --port 4173 --strictPort",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "smoke": "node scripts/smoke.mjs",
+    "verify": "npm run typecheck && npm test && npm run build"
+  },
+  "engines": {
+    "node": ">=20.19"
+  },
+  "dependencies": {
+    "three": "^0.169.0"
+  },
+  "devDependencies": {
+    "@types/pngjs": "^6.0.5",
+    "@types/three": "^0.169.0",
+    "playwright-core": "^1.64.1",
+    "pngjs": "^7.0.0",
+    "typescript": "^5.6.3",
+    "vite": "^7.3.7",
+    "vitest": "^4.1.12"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-10-25T12:24:35Z",
+  "source": "package-lock.json license metadata",
+  "lockedPackageCount": 106,
+  "licenseCounts": {
+    "MIT": 99,
+    "Apache-2.0": 3,
+    "BSD-3-Clause": 2,
+    "ISC": 2
+  },
+  "unknownLicenseCount": 0,
+  "projectLicense": "None selected; no LICENSE file added."
+}

@@ -1,0 +1,147 @@
+{
+    "schemaVersion":  1,
+    "generatedAt":  "2026-10-25T11:29:18Z",
+    "executionStatus":  "completed",
+    "environment":  {
+                        "os":  "Windows",
+                        "runtime":  "Node v24.18.0",
+                        "npm":  "11.16.0",
+                        "vite":  "5.4.21",
+                        "browser":  "Chrome headless; version not captured",
+                        "graphics":  "SwiftShader software WebGL",
+                        "preview":  "http://localhost:4173/",
+                        "devServer":  "http://localhost:5173/ not listening",
+                        "git":  "Unavailable: D:\\godmode has no .git directory",
+                        "typescript":  "5.9.3",
+                        "vitest":  "2.1.9",
+                        "three":  "0.169.0",
+                        "playwrightCore":  "1.64.1"
+                    },
+    "baseline":  {
+                     "typecheck":  "passed",
+                     "unit":  {
+                                  "passed":  46,
+                                  "failed":  0
+                              },
+                     "build":  "passed",
+                     "firstIndependentSmoke":  {
+                                                   "passed":  16,
+                                                   "failed":  1,
+                                                   "cause":  "Toast selector race in test harness; corrected and final suite passed."
+                                               },
+                     "gitStatus":  "unavailable"
+                 },
+    "final":  {
+                  "suites":  [
+                                 {
+                                     "name":  "typecheck",
+                                     "kind":  "static/type",
+                                     "command":  "npm run typecheck",
+                                     "status":  "passed",
+                                     "passed":  1,
+                                     "failed":  0,
+                                     "skipped":  0,
+                                     "timestamp":  "2026-10-25T11:29:18Z"
+                                 },
+                                 {
+                                     "name":  "unit",
+                                     "kind":  "unit",
+                                     "command":  "npm test",
+                                     "status":  "passed",
+                                     "passed":  46,
+                                     "failed":  0,
+                                     "skipped":  0,
+                                     "timestamp":  "2026-10-25T11:29:18Z"
+                                 },
+                                 {
+                                     "name":  "production-build",
+                                     "kind":  "build",
+                                     "command":  "npm run build",
+                                     "status":  "passed",
+                                     "passed":  1,
+                                     "failed":  0,
+                                     "skipped":  0,
+                                     "timestamp":  "2026-10-25T11:29:18Z"
+                                 },
+                                 {
+                                     "name":  "existing-browser-smoke",
+                                     "kind":  "browser",
+                                     "command":  "npm run smoke",
+                                     "status":  "passed",
+                                     "passed":  17,
+                                     "failed":  0,
+                                     "skipped":  0,
+                                     "timestamp":  "2026-10-25T11:29:18Z",
+                                     "report":  "scripts/qa-existing-smoke-final.json"
+                                 },
+                                 {
+                                     "name":  "expanded-browser-interactions",
+                                     "kind":  "browser",
+                                     "command":  "node scripts/qa-smoke.mjs",
+                                     "status":  "passed",
+                                     "passed":  7,
+                                     "failed":  0,
+                                     "skipped":  0,
+                                     "timestamp":  "2026-10-25T11:29:18Z",
+                                     "report":  "scripts/qa-smoke-report.json"
+                                 },
+                                 {
+                                     "name":  "integration",
+                                     "kind":  "integration",
+                                     "command":  null,
+                                     "status":  "not_available",
+                                     "passed":  0,
+                                     "failed":  0,
+                                     "skipped":  1,
+                                     "reason":  "No integration suite or script is configured in package.json."
+                                 }
+                             ],
+                  "browserViewports":  [
+                                           {
+                                               "height":  1080,
+                                               "width":  1920
+                                           },
+                                           {
+                                               "height":  900,
+                                               "width":  1440
+                                           },
+                                           {
+                                               "height":  768,
+                                               "width":  1024
+                                           },
+                                           {
+                                               "height":  720,
+                                               "width":  820
+                                           },
+                                           {
+                                               "height":  844,
+                                               "width":  390
+                                           },
+                                           {
+                                               "height":  800,
+                                               "width":  360
+                                           }
+                                       ],
+                  "failures":  [
+
+                               ],
+                  "skippedChecks":  [
+                                        "Physical GPU performance and GPU memory",
+                                        "WebGL context loss/restoration",
+                                        "audible audio and audio-node lifecycle",
+                                        "physical touch/pinch testing",
+                                        "all parameter slider extremes",
+                                        "controlled 1k/5k/10k/18k/24k stress sizes",
+                                        "storage quota/interrupted write cases",
+                                        "all adversarial import cases and limits",
+                                        "every objective/event cooldown boundary",
+                                        "complete checkpoint/rewind eviction and branching matrix"
+                                    ]
+              },
+    "limitations":  [
+                        "No Git metadata in workspace.",
+                        "Software WebGL FPS is not representative of hardware GPU performance.",
+                        "No integration suite is configured.",
+                        "See QA_AUDIT.md and QA_TEST_MATRIX.md for coverage boundaries."
+                    ]
+}

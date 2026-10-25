@@ -1,0 +1,326 @@
+{
+  "schemaVersion": 1,
+  "startedAt": "2026-10-25T12:21:20.153Z",
+  "finishedAt": "2026-10-25T12:22:39.615Z",
+  "target": "http://localhost:4173/",
+  "environment": {
+    "browser": "Chromium launched by Playwright in a fresh isolated context",
+    "browserVersion": "156.0.8078.47",
+    "headless": true,
+    "graphics": "SwiftShader software WebGL; no GPU claim",
+    "node": "v24.18.0",
+    "viewportSizes": [
+      [
+        1920,
+        1080
+      ],
+      [
+        1440,
+        900
+      ],
+      [
+        1024,
+        768
+      ],
+      [
+        820,
+        720
+      ],
+      [
+        390,
+        844
+      ],
+      [
+        360,
+        800
+      ]
+    ],
+    "storage": "new browser contexts; no user profile data"
+  },
+  "counts": {
+    "pass": 11,
+    "fail": 0,
+    "blocked": 0,
+    "notTested": 1
+  },
+  "results": [
+    {
+      "name": "production URL, page title, initial WebGL scene, isolated profile",
+      "status": "PASS",
+      "durationMs": 0,
+      "evidence": {
+        "finalUrl": "http://localhost:4173/",
+        "title": "GOD MODE — Cosmic Sandbox",
+        "httpStatus": 200,
+        "initialScreenshot": "artifacts/user-acceptance/session-a-first-contact-1440x900.png",
+        "viewport": [
+          1440,
+          900
+        ],
+        "litCanvasSamples": 721,
+        "scenario": "prime",
+        "tool": "gravity",
+        "particles": 9048,
+        "bodies": 5,
+        "firstRunHint": "Fling a particle fast past a massive body.",
+        "seededSamples": [
+          "Sample · Binary Dance",
+          "Sample · Total Chaos"
+        ]
+      }
+    },
+    {
+      "name": "Session A: first contact, help, tabs, controls and interaction guidance",
+      "status": "PASS",
+      "durationMs": 4471,
+      "evidence": {
+        "helpScreenshot": "artifacts/user-acceptance/session-a-help.png",
+        "toolRailCount": 7,
+        "status": "placed gravity source; pause/resume, 2x speed, wheel zoom and right-drag pan exercised"
+      }
+    },
+    {
+      "name": "Session B: Binary Dance, force parameters, drag, nearby field, black hole, supernova, repel, paint, orbit",
+      "status": "PASS",
+      "durationMs": 12292,
+      "evidence": {
+        "defaultParameterEdges": {
+          "mass": 3000,
+          "influence": 120,
+          "strength": 3
+        },
+        "selectedSourceEdges": {
+          "mass": 0,
+          "radius": 70,
+          "influence": 2200,
+          "strength": 0.1
+        },
+        "dragDistance": 305,
+        "forceLabScreenshot": "artifacts/user-acceptance/session-b-force-lab.png",
+        "eventScreenshot": "artifacts/user-acceptance/session-b-events.png",
+        "missions": [
+          {
+            "id": "orbit",
+            "done": false,
+            "progress": 0.0937937335553801
+          },
+          {
+            "id": "capture",
+            "done": true,
+            "progress": 1
+          },
+          {
+            "id": "collision",
+            "done": true,
+            "progress": 1
+          },
+          {
+            "id": "shockwave",
+            "done": true,
+            "progress": 1
+          },
+          {
+            "id": "slingshot",
+            "done": true,
+            "progress": 1
+          }
+        ]
+      }
+    },
+    {
+      "name": "Session C: all worlds, two tool interactions each, pause/resume and 20 rapid switches",
+      "status": "PASS",
+      "durationMs": 16721,
+      "evidence": {
+        "visits": [
+          {
+            "id": "prime",
+            "particles": 9048,
+            "bodies": 5,
+            "worldScreenshot": "session-c-prime.png"
+          },
+          {
+            "id": "binary",
+            "particles": 5337,
+            "bodies": 3,
+            "worldScreenshot": "session-c-binary.png"
+          },
+          {
+            "id": "singularity",
+            "particles": 6568,
+            "bodies": 3,
+            "worldScreenshot": "session-c-singularity.png"
+          },
+          {
+            "id": "collapse",
+            "particles": 9606,
+            "bodies": 3,
+            "worldScreenshot": "session-c-collapse.png"
+          },
+          {
+            "id": "slingshot",
+            "particles": 2593,
+            "bodies": 3,
+            "worldScreenshot": "session-c-slingshot.png"
+          },
+          {
+            "id": "chaos",
+            "particles": 6357,
+            "bodies": 7,
+            "worldScreenshot": "session-c-chaos.png"
+          }
+        ],
+        "rapidSwitches": 20,
+        "final": "binary"
+      }
+    },
+    {
+      "name": "Session D: save, rename, reload, restore, export/import, checkpoint, rewind branch, delete test save",
+      "status": "PASS",
+      "durationMs": 17851,
+      "evidence": {
+        "savedParticles": 5337,
+        "savedBodies": 4,
+        "restoredBodies": 4,
+        "exportBytes": 350610,
+        "rewindFrames": 2,
+        "keyframesAfterRewind": 1,
+        "loadedScreenshot": "artifacts/user-acceptance/session-d-restored-experiment.png",
+        "remainingExperiments": [
+          "Sample · Binary Dance",
+          "Sample · Total Chaos"
+        ]
+      }
+    },
+    {
+      "name": "Session E: mistake recovery, object selection/delete, undo branch, reset, accidental panel/canvas separation",
+      "status": "PASS",
+      "durationMs": 4537,
+      "evidence": {
+        "selectedBody": 1,
+        "deleteUndo": true,
+        "redoBranched": true,
+        "resetUndo": true,
+        "preSliderBodies": 6
+      }
+    },
+    {
+      "name": "Session F: quality, labels, performance, mute/volume, hide UI, notifications, capture initial and final screenshots",
+      "status": "PASS",
+      "durationMs": 2433,
+      "evidence": {
+        "qualityPresets": [
+          "balanced",
+          "cinematic",
+          "performance"
+        ],
+        "muteAndVolume": true,
+        "labels": true,
+        "hideUi": true,
+        "finalScreenshot": "artifacts/user-acceptance/session-f-final-1440x900.png"
+      }
+    },
+    {
+      "name": "Responsive visual screenshot set at requested sizes",
+      "status": "PASS",
+      "durationMs": 3984,
+      "evidence": {
+        "files": [
+          "artifacts/user-acceptance/viewport-1920x1080.png",
+          "artifacts/user-acceptance/viewport-1440x900.png",
+          "artifacts/user-acceptance/viewport-1024x768.png",
+          "artifacts/user-acceptance/viewport-820x720.png",
+          "artifacts/user-acceptance/viewport-390x844.png",
+          "artifacts/user-acceptance/viewport-360x800.png"
+        ]
+      }
+    },
+    {
+      "name": "Touch emulation: tap selects tools and places a source",
+      "status": "PASS",
+      "durationMs": 6581,
+      "evidence": {
+        "emulation": true,
+        "physicalTouch": false,
+        "bodiesBefore": 5,
+        "bodiesAfter": 6,
+        "screenshot": "artifacts/user-acceptance/touch-emulated-390x844.png"
+      }
+    },
+    {
+      "name": "Reduced-motion preference on fresh app session",
+      "status": "PASS",
+      "durationMs": 5825,
+      "evidence": {
+        "matches": true,
+        "appReduced": true,
+        "trail": 0.18,
+        "screenshot": "artifacts/user-acceptance/reduced-motion-1024x768.png"
+      }
+    },
+    {
+      "name": "Extended play session — 10 minutes of actual UI interaction",
+      "status": "NOT TESTED",
+      "durationMs": 0,
+      "evidence": "A complete 600-second session passed in the first run; skipped on journey retest to avoid duplicating the sustained run."
+    },
+    {
+      "name": "Final console, exception, and network audit",
+      "status": "PASS",
+      "durationMs": 0,
+      "evidence": {
+        "pageErrors": [],
+        "consoleErrors": [],
+        "consoleWarnings": [],
+        "failedRequests": [],
+        "failedResponses": []
+      }
+    }
+  ],
+  "failures": [],
+  "skippedChecks": [
+    "Physical touchscreen hardware was unavailable; touch was emulated.",
+    "Physical GPU benchmark and GPU memory measurements were not available.",
+    "WebGL context-loss restoration was not injected.",
+    "Storage quota exhaustion was not forced.",
+    "Browser-level zoom was not changed; viewport sizing was tested.",
+    "Reload interruption during a write was not forced."
+  ],
+  "console": {
+    "errors": [],
+    "warnings": [],
+    "pageErrors": [],
+    "failedRequests": [],
+    "failedResponses": []
+  },
+  "screenshots": [
+    "artifacts/user-acceptance/extended-session-after.png",
+    "artifacts/user-acceptance/extended-session-before.png",
+    "artifacts/user-acceptance/force-lab-retest-final.png",
+    "artifacts/user-acceptance/force-lab-retest.png",
+    "artifacts/user-acceptance/hide-interface-retest.png",
+    "artifacts/user-acceptance/mobile-archive-toast.png",
+    "artifacts/user-acceptance/reduced-motion-1024x768.png",
+    "artifacts/user-acceptance/rewind-branch-retest.png",
+    "artifacts/user-acceptance/session-a-first-contact-1440x900.png",
+    "artifacts/user-acceptance/session-a-help.png",
+    "artifacts/user-acceptance/session-b-events.png",
+    "artifacts/user-acceptance/session-b-force-lab.png",
+    "artifacts/user-acceptance/session-c-binary.png",
+    "artifacts/user-acceptance/session-c-chaos.png",
+    "artifacts/user-acceptance/session-c-collapse.png",
+    "artifacts/user-acceptance/session-c-prime.png",
+    "artifacts/user-acceptance/session-c-singularity.png",
+    "artifacts/user-acceptance/session-c-slingshot.png",
+    "artifacts/user-acceptance/session-d-restored-experiment.png",
+    "artifacts/user-acceptance/session-e-mobile-panel-820x720.png",
+    "artifacts/user-acceptance/session-f-final-1440x900.png",
+    "artifacts/user-acceptance/touch-emulated-390x844.png",
+    "artifacts/user-acceptance/viewport-1024x768.png",
+    "artifacts/user-acceptance/viewport-1440x900.png",
+    "artifacts/user-acceptance/viewport-1920x1080.png",
+    "artifacts/user-acceptance/viewport-360x800.png",
+    "artifacts/user-acceptance/viewport-390x844.png",
+    "artifacts/user-acceptance/viewport-820x720.png"
+  ]
+}
