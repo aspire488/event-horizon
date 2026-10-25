@@ -1,30 +1,55 @@
 # EVENT HORIZON
 
-An interactive cosmic physics sandbox where you manipulate gravity, black holes, supernovas, and orbital systems in a living universe. The existing in-app label remains GOD MODE.
+<p align="center">
+  <strong>An interactive cosmic physics sandbox</strong><br />
+  Bend gravity. Shape orbits. Trigger supernovas. Feed black holes.<br />
+  Explore a living universe where you control the chaos.
+</p>
 
-** Live Demo:** [event-horizon-teal.vercel.app](https://event-horizon-teal.vercel.app)
+<p align="center">
+  <a href="https://event-horizon-teal.vercel.app">
+    <img src="https://img.shields.io/badge/🚀_PLAY_LIVE-EVENT_HORIZON-ff6b35?style=for-the-badge&labelColor=10131d" alt="Play Event Horizon live" />
+  </a>
+  <a href="https://github.com/aspire488/event-horizon">
+    <img src="https://img.shields.io/badge/GitHub-Source_Code-24292f?style=for-the-badge&logo=github" alt="View source code on GitHub" />
+  </a>
+</p>
 
-![EVENT HORIZON running in the production preview](artifacts/user-acceptance/session-a-first-contact-1440x900.png)
+<p align="center">
+  <a href="https://event-horizon-teal.vercel.app"><strong>▶ OPEN THE LIVE SANDBOX →</strong></a>
+</p>
 
-## Features
+![Event Horizon — interactive cosmic physics sandbox](artifacts/user-acceptance/session-a-first-contact-1440x900.png)
 
-- Seven tools: Observe, Gravity, Black Hole, Supernova, Repel, Paint, and Orbit.
-- Six seeded worlds, a live event feed, and five discovery objectives.
-- Fixed-step particle and body simulation, shockwaves, captures, merges, and stellar collapse.
-- Pause, speed controls, undo/redo, checkpoints, snapshot rewind, and reset.
-- Local experiment save/load, rename, export, and validated JSON import.
-- Procedural WebGL visuals and Web Audio effects, with quality and reduced-motion controls.
+> **Event Horizon** is a hands-on cosmic playground for manipulating gravity, black holes, supernovas, and orbital systems. The in-app title currently remains **GOD MODE**.
+
+## Explore the universe
+
+- **Seven tools:** Observe, Gravity, Black Hole, Supernova, Repel, Paint, and Orbit.
+- **Six seeded worlds:** Explore distinct cosmic setups with reproducible scenarios.
+- **Dynamic events:** Shockwaves, captures, merges, stellar collapse, and a live event feed.
+- **Experiment freely:** Pause, change simulation speed, undo/redo, checkpoints, snapshot rewind, and reset.
+- **Save your discoveries:** Save, load, and rename local experiments; export and validate JSON imports.
+- **A living visual experience:** Procedural WebGL rendering, visual effects, procedural Web Audio, quality presets, and reduced-motion controls.
+
+## 🚀 Play online
+
+<p align="center">
+  <a href="https://event-horizon-teal.vercel.app"><strong>Launch Event Horizon →</strong></a>
+</p>
+
+No installation is needed to try the deployed version.
 
 ## Run locally
 
-Requires Node.js 20.19 or newer and npm. Install the exact dependency tree from the lockfile:
+**Requirements:** Node.js 20.19+ and npm.
 
 ```sh
 npm ci
 npm run dev
 ```
 
-Open the URL Vite prints (normally `http://localhost:5173`).
+Open the local URL printed by Vite (usually `http://localhost:5173`).
 
 Build and preview the production bundle:
 
@@ -33,17 +58,17 @@ npm run build
 npm run preview
 ```
 
-Preview runs at `http://localhost:4173`.
+The preview server normally runs at `http://localhost:4173`.
 
 ## Controls
 
 | Input | Action |
 | --- | --- |
-| `1`–`7` | Select Observe, Gravity, Black Hole, Supernova, Repel, Paint, Orbit |
+| `1`–`7` | Select Observe, Gravity, Black Hole, Supernova, Repel, Paint, or Orbit |
 | Left click / drag | Use the selected tool; drag selected bodies to move them |
 | Left drag on empty space with Observe | Pan the camera |
 | Right / middle drag | Pan with any tool |
-| Wheel / pinch | Zoom |
+| Mouse wheel / pinch | Zoom |
 | `Z` / `Y` (`Ctrl+Z` / `Ctrl+Shift+Z`) | Undo / redo |
 | `Space` | Pause / resume |
 | `+` / `-` | Change simulation speed |
@@ -51,11 +76,11 @@ Preview runs at `http://localhost:4173`.
 | `M` / `P` / `L` / `H` | Mute / performance display / labels / hide interface |
 | `?` | Open the help overlay |
 
-Touch users can tap and drag tools, pan with two fingers, pinch to zoom, and use the panel toggle to reach controls.
+**Touch:** Tap and drag to use tools, pan with two fingers, pinch to zoom, and use the panel toggle to reach controls.
 
-## Architecture
+## How it's built
 
-The app is a Vite and TypeScript single-page application with a Three.js/WebGL renderer. The physics core is separated from rendering and uses a fixed-step accumulator, semi-implicit integration, softened gravity, bounded particle storage, and deterministic scenario seeds. The UI is DOM-based; `src/app.ts` coordinates simulation, rendering, history, input, and persistence.
+Event Horizon is a Vite + TypeScript single-page app with a Three.js/WebGL renderer. The physics core is separate from rendering and uses a fixed-step accumulator, semi-implicit integration, softened gravity, bounded particle storage, and deterministic scenario seeds.
 
 ```text
 src/core/    physics, particles, worlds, scenarios, events, objectives, history, serialization
@@ -66,7 +91,9 @@ src/audio/   procedural Web Audio
 src/app.ts   application orchestration
 ```
 
-## Tests and release checks
+## Quality checks
+
+Run the project's checks locally:
 
 ```sh
 npm run typecheck
@@ -76,15 +103,21 @@ npm run preview   # terminal 1
 npm run smoke     # terminal 2; set CHROME_PATH if needed
 ```
 
-The current recorded results are 46 unit tests and 18 production-browser smoke checks passing. The smoke suite exercises the declared favicon, rendering, tools, worlds, history, save/reload, JSON export/import and malformed-import rejection. The separate user acceptance pass covered all six requested viewport sizes, all six worlds and seven tools, isolated save/restore flows, touch emulation, and a 10-minute session. The current lockfile install reported zero known npm advisories during release verification. Reports and screenshots are retained in `scripts/` and `artifacts/user-acceptance/`.
+Latest recorded release checks:
 
-The browser checks use headless Chromium with SwiftShader software WebGL in this environment. Those FPS readings do not measure physical GPU performance. Physical touch hardware, browser zoom edge cases, and WebGL context-loss recovery have not been fully verified.
+- **46/46 unit tests passed**
+- **18/18 production-browser smoke checks passed locally**
+- **18/18 production-browser smoke checks passed against the live deployment**
+- Typecheck and production build passed; live browser verification reported no console errors or failed network requests.
 
-## Deploy to Vercel
+Automated browser runs used headless Chromium with SwiftShader software WebGL. Their FPS readings are not a physical-GPU benchmark. Physical touch hardware, browser zoom edge cases, and WebGL context-loss recovery have not been fully verified.
 
-This is a static Vite app. Import the repository in Vercel and use the Vite preset, `npm ci` for installation, `npm run build` as the build command, and `dist` as the output directory. No backend or environment variables are required. The project does not use client-side URL routes, so no SPA rewrite is needed.
+## Production deployment
 
-Production deployment: [event-horizon-teal.vercel.app](https://event-horizon-teal.vercel.app).
+**Live demo:** [https://event-horizon-teal.vercel.app](https://event-horizon-teal.vercel.app)  
+**Source code:** [github.com/aspire488/event-horizon](https://github.com/aspire488/event-horizon) · **Branch:** `main`
+
+This is a static Vite app. The Vercel build uses `npm ci`, `npm run build`, and `dist` as the output directory. No backend or environment variables are required.
 
 ## License
 
