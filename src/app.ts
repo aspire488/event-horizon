@@ -106,6 +106,7 @@ export class App implements UIActions, InteractionHost {
   private visualTime = 0;
   private lastFrame = 0;
   private lastSync = 0;
+  private lastSyncedKeyframes = -1;
   private lastAbsorbSound = 0;
   private lastSliderRecord = 0;
   private qualityHinted = false;
@@ -367,8 +368,13 @@ export class App implements UIActions, InteractionHost {
       if (step) this.stepEffectiveQuality(step === 'up' ? 1 : -1);
     }
 
-    if (nowMs - this.lastSync > 110) {
+    // A new keyframe must reach the rewind UI the instant it exists: the
+    // 110ms throttle is for continuous telemetry, not discrete history events
+    // (without this the slider's max lags page state and races consumers).
+    const kfCount = this.timeline.keyframes.length;
+    if (kfCount !== this.lastSyncedKeyframes || nowMs - this.lastSync > 110) {
       this.lastSync = nowMs;
+      this.lastSyncedKeyframes = kfCount;
       this.syncUi();
       this.autoQualityHint();
     }

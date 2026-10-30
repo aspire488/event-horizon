@@ -192,7 +192,12 @@ try {
     await page.locator('.transport-play').click();
     await page.locator('.speed-chip').filter({hasText:'4×'}).click();
     await page.waitForFunction(()=>window.__GODMODE__.timeline.keyframes.length>=3,null,{timeout:20000});
-    const rewind=page.locator('.rewind-slider'); const max=Number(await rewind.getAttribute('max'));
+    const rewind=page.locator('.rewind-slider');
+    // Assert the DOM contract (the slider exposes the frames), not a race
+    // between page state and the UI sync: the slider updates on the frame the
+    // keyframe lands, but poll anyway so a stale attribute can never flake.
+    await page.waitForFunction(()=>Number(document.querySelector('.rewind-slider')?.getAttribute('max') ?? 0)>=2,null,{timeout:5000});
+    const max=Number(await rewind.getAttribute('max'));
     assert.ok(max>=2,`not enough rewind frames: ${max}`);
     await rewind.focus(); await rewind.press('Home'); await page.waitForTimeout(200);
     const rewindState=await state(); assert.equal(rewindState.paused,true);
