@@ -1,114 +1,76 @@
 {
-    "base":  "http://localhost:4173/",
-    "generatedAt":  "2026-10-25T11:29:03Z",
-    "environment":  {
-                        "browser":  "Chrome headless with SwiftShader",
-                        "viewportSizes":  [
-                                              [
-                                                  1920,
-                                                  1080
-                                              ],
-                                              [
-                                                  1440,
-                                                  900
-                                              ],
-                                              [
-                                                  1024,
-                                                  768
-                                              ],
-                                              [
-                                                  820,
-                                                  720
-                                              ],
-                                              [
-                                                  390,
-                                                  844
-                                              ],
-                                              [
-                                                  360,
-                                                  800
-                                              ]
-                                          ],
-                        "graphics":  "software WebGL; not a GPU benchmark"
-                    },
-    "counts":  {
-                   "passed":  24,
-                   "failed":  0,
-                   "skipped":  0
-               },
-    "suites":  [
-                   {
-                       "name":  "additional-real-browser-interactions",
-                       "passed":  7,
-                       "failed":  0,
-                       "skipped":  0,
-                       "results":  [
-                                       {
-                                           "name":  "six documented worlds load cleanly through the UI",
-                                           "status":  "passed",
-                                           "durationMs":  2504
-                                       },
-                                       {
-                                           "name":  "all seven tools select and their canvas actions produce expected state",
-                                           "status":  "passed",
-                                           "durationMs":  3073
-                                       },
-                                       {
-                                           "name":  "all primary tabs render and remain interactive",
-                                           "status":  "passed",
-                                           "durationMs":  910
-                                       },
-                                       {
-                                           "name":  "toolbar, panel, transport and canvas remain in viewport at six sizes",
-                                           "status":  "passed",
-                                           "durationMs":  1740
-                                       },
-                                       {
-                                           "name":  "input focus protects global shortcuts and Escape closes help",
-                                           "status":  "passed",
-                                           "durationMs":  304
-                                       },
-                                       {
-                                           "name":  "scenario switching does not accumulate bodies, waves or listeners",
-                                           "status":  "passed",
-                                           "durationMs":  661
-                                       },
-                                       {
-                                           "name":  "browser has no page exceptions or failed network requests",
-                                           "status":  "passed",
-                                           "durationMs":  1
-                                       }
-                                   ]
-                   },
-                   {
-                       "name":  "existing-production-smoke",
-                       "passed":  17,
-                       "failed":  0,
-                       "skipped":  0,
-                       "results":  [
-                                       "PASS  the application boots with a live universe  (9 ms)",
-                                       "PASS  the canvas renders a non-empty scene  (769 ms)",
-                                       "PASS  pause and resume control the simulation clock  (1854 ms)",
-                                       "PASS  a gravity well bends a particle trajectory  (1237 ms)",
-                                       "PASS  a black hole absorbs matter  (4254 ms)",
-                                       "PASS  a supernova emits a shockwave that moves matter  (1985 ms)",
-                                       "PASS  scenarios load distinct states through the interface  (1421 ms)",
-                                       "PASS  undo and redo restore object edits  (2447 ms)",
-                                       "PASS  painting matter and launching an orbit work  (2207 ms)",
-                                       "PASS  reset rebuilds the scenario and undo restores the previous universe  (1330 ms)",
-                                       "PASS  experiments save locally and survive a reload  (3565 ms)",
-                                       "PASS  JSON export and import round-trip through the UI  (1448 ms)",
-                                       "PASS  the performance readout reports engine measurements  (781 ms)",
-                                       "PASS  help overlay, labels and hide-interface controls work  (665 ms)",
-                                       "PASS  the layout stays usable on laptop and narrow screens  (2246 ms)",
-                                       "PASS  a first-time visitor gets sample experiments and a hint  (2938 ms)",
-                                       "PASS  no critical runtime errors were logged  (0 ms)"
-                                   ]
-                   }
-               ],
-    "failures":  [
-
-                 ],
-    "executionStatus":  "completed",
-    "note":  "Actual final browser executions. SwiftShader is software WebGL, not a GPU benchmark."
+  "base": "http://localhost:4173/",
+  "startedAt": "2026-10-30T14:41:18.154Z",
+  "environment": {
+    "browser": "Chrome headless with SwiftShader",
+    "viewportSizes": [
+      [
+        1920,
+        1080
+      ],
+      [
+        1440,
+        900
+      ],
+      [
+        1024,
+        768
+      ],
+      [
+        820,
+        720
+      ],
+      [
+        390,
+        844
+      ],
+      [
+        360,
+        800
+      ]
+    ],
+    "graphics": "software WebGL; not a GPU benchmark"
+  },
+  "counts": {
+    "passed": 7,
+    "failed": 0,
+    "skipped": 0
+  },
+  "results": [
+    {
+      "name": "six documented worlds load cleanly through the UI",
+      "status": "passed",
+      "durationMs": 3106
+    },
+    {
+      "name": "all seven tools select and their canvas actions produce expected state",
+      "status": "passed",
+      "durationMs": 2796
+    },
+    {
+      "name": "all primary tabs render and remain interactive",
+      "status": "passed",
+      "durationMs": 782
+    },
+    {
+      "name": "toolbar, panel, transport and canvas remain in viewport at six sizes",
+      "status": "passed",
+      "durationMs": 2007
+    },
+    {
+      "name": "input focus protects global shortcuts and Escape closes help",
+      "status": "passed",
+      "durationMs": 335
+    },
+    {
+      "name": "scenario switching does not accumulate bodies, waves or listeners",
+      "status": "passed",
+      "durationMs": 1459
+    },
+    {
+      "name": "browser has no page exceptions or failed network requests",
+      "status": "passed",
+      "durationMs": 1
+    }
+  ]
 }

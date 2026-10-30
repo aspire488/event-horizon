@@ -1,0 +1,104 @@
+{
+  "startedAt": "2026-10-30T13:52:23.501Z",
+  "base": "http://localhost:4173/",
+  "seed": 20261029,
+  "personas": [
+    {
+      "name": "firstRun",
+      "ok": true,
+      "fails": [],
+      "steps": [
+        "loaded",
+        "helpToggled"
+      ]
+    },
+    {
+      "name": "keyboardPower",
+      "ok": true,
+      "fails": [],
+      "steps": [
+        "keyboardTour"
+      ]
+    },
+    {
+      "name": "scenarioHopper",
+      "ok": true,
+      "fails": [],
+      "steps": [
+        "scenario:binary",
+        "scenario:collapse",
+        "scenario:singularity",
+        "scenario:singularity"
+      ]
+    },
+    {
+      "name": "editor",
+      "ok": true,
+      "fails": [],
+      "steps": [
+        "placed:gravity",
+        "placed:blackhole",
+        "placed:repel",
+        "placed:orbit"
+      ]
+    },
+    {
+      "name": "undoRedoAbuser",
+      "ok": true,
+      "fails": [],
+      "steps": [
+        "undoRedoStress"
+      ]
+    },
+    {
+      "name": "archivist",
+      "ok": true,
+      "fails": [],
+      "steps": [
+        "saves:8",
+        "roundTrip"
+      ]
+    },
+    {
+      "name": "qualityTour",
+      "ok": true,
+      "fails": [],
+      "steps": [
+        "qualityRenderingOnly",
+        "options:auto,cinematic,balanced,performance"
+      ]
+    },
+    {
+      "name": "touchUser",
+      "ok": true,
+      "fails": [],
+      "steps": [
+        "mobileToolsReachable"
+      ]
+    },
+    {
+      "name": "slingshotHunter",
+      "ok": true,
+      "fails": [],
+      "steps": [
+        "slingshots:601"
+      ]
+    },
+    {
+      "name": "prefsTinkerer",
+      "ok": true,
+      "fails": [],
+      "steps": [
+        "corruptPrefsRecovered",
+        "corruptPrefsRecovered",
+        "corruptPrefsRecovered"
+      ]
+    }
+  ],
+  "fuzz": {
+    "total": 100,
+    "passed": 100,
+    "failed": 0,
+    "failures": []
+  }
+}

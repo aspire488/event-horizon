@@ -1,7 +1,8 @@
-// Honest frame-time benchmark on the REAL GPU (RTX 3050 via --use-angle=d3d11,
-// same flags that probe-gpu.mjs verified). One fresh page per cell; production
-// build via `vite preview`. Results land in artifacts/benchmark/*.json + a
-// markdown table printed to stdout.
+// Honest frame-time benchmark on the REAL discrete GPU. Headless Chrome picks
+// the iGPU (Radeon 740M) for d3d11; the verified path to the RTX 3050 is
+// Vulkan-over-ANGLE (probe-gpu2 confirmed the unmasked renderer string).
+// One fresh page per cell; production build via `vite preview`. Results land
+// in artifacts/benchmark/*.json + a markdown table printed to stdout.
 //
 //   node scripts/benchmark.mjs                 # full matrix
 //   BENCH_QUICK=1 node scripts/benchmark.mjs   # prime + singularity only
@@ -63,8 +64,8 @@ const GPU_ARGS = [
   '--no-sandbox',
   '--disable-dev-shm-usage',
   '--mute-audio',
-  '--enable-features=Vulkan',
-  '--use-angle=d3d11',
+  '--enable-features=Vulkan,VulkanFromANGLE,DefaultANGLEVulkan',
+  '--use-angle=vulkan',
   '--force-gpu-mem-available-mb=4096',
 ];
 
@@ -132,10 +133,20 @@ for (const quality of QUALITIES) {
       await page.evaluate((id) => window.__GODMODE__.loadScenario(id), scenario);
       await page.waitForTimeout(SETTLE_MS);
       await page.evaluate(() => window.__GODMODE__.perf?.resetSamples?.());
-      const [frame, appStats] = await Promise.all([
-        page.evaluate(SAMPLER, MEASURE_MS),
-        page.evaluate(() => (window.__GODMODE__.perfStats ? window.__GODMODE__.perfStats() : null)).catch(() => null),
-      ]);
+      // rAF sampler defines the measurement window; perfStats is read AFTER it
+      // so the physics/render split covers the same window, not t=0.
+      const frame = await page.evaluate(SAMPLER, MEASURE_MS);
+      const appStats = await page
+        .evaluate(() => (window.__GODMODE__.perfStats ? window.__GODMODE__.perfStats() : null))
+        .catch(() => null);
+      // Driver-sourced renderer label, read from the app's own GL context —
+      // works on the baseline build too (it predates perfStats).
+      const glRenderer = await page.evaluate(() => {
+        const gl = window.__GODMODE__.renderer.renderer.getContext();
+        const ext = gl.getExtension('WEBGL_debug_renderer_info');
+        return ext ? gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER);
+      }).catch(() => null);
+      if (glRenderer) rendererString = glRenderer;
       rendererString = appStats?.renderer ?? rendererString;
       const cell = {
         quality,
