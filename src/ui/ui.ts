@@ -341,10 +341,14 @@ export class UI {
     // --- Tool rail ---
     const rail = el('div', 'toolrail');
     const toolsWrap = el('div', 'rail-tools');
+    toolsWrap.setAttribute('role', 'toolbar');
+    toolsWrap.setAttribute('aria-label', 'Tool rail');
     for (const tool of TOOLS) {
       const btn = el('button', 'tool-button');
       btn.type = 'button';
       btn.title = `${tool.name} (${tool.key}) — ${tool.hint}`;
+      btn.setAttribute('aria-label', `${tool.name} (${tool.key})`);
+      btn.setAttribute('aria-pressed', 'false');
       btn.dataset.tool = tool.id;
       btn.append(icon(tool.id), el('span', 'tool-key', tool.key));
       btn.addEventListener('click', () => this.actions.selectTool(tool.id));
@@ -362,9 +366,12 @@ export class UI {
     // --- Right panel ---
     this.panel = el('aside', 'panel');
     const tabbar = el('nav', 'tabs');
+    tabbar.setAttribute('role', 'tablist');
     for (const tab of TABS) {
       const btn = el('button', 'tab-button', tab.label);
       btn.type = 'button';
+      btn.setAttribute('role', 'tab');
+      btn.setAttribute('aria-selected', 'false');
       btn.addEventListener('click', () => {
         this.activeTab = tab.id;
         this.lastPanelSignature = '';
@@ -380,15 +387,19 @@ export class UI {
 
     // --- Transport ---
     const transport = el('div', 'transport');
+    transport.setAttribute('role', 'group');
+    transport.setAttribute('aria-label', 'Simulation transport');
     this.pauseButton = el('button', 'transport-play');
     this.pauseButton.type = 'button';
     this.pauseButton.title = 'Pause / resume (Space)';
+    this.pauseButton.setAttribute('aria-label', 'Pause or resume simulation');
     this.pauseButton.addEventListener('click', () => this.actions.togglePause());
     const speeds = el('div', 'speed-chips');
     for (const speed of SPEEDS) {
       const chip = el('button', 'speed-chip', speed === 1 ? '1×' : `${speed}×`);
       chip.type = 'button';
       chip.title = `Simulation speed ${speed}×`;
+      chip.setAttribute('aria-pressed', 'false');
       chip.addEventListener('click', () => this.actions.setSpeed(speed));
       speeds.appendChild(chip);
       this.speedButtons.set(speed, chip);
@@ -496,6 +507,7 @@ export class UI {
     const btn = el('button', 'icon-button');
     btn.type = 'button';
     btn.title = title;
+    btn.setAttribute('aria-label', title);
     btn.appendChild(icon(iconName));
     if (onClick) btn.addEventListener('click', onClick);
     return btn;
@@ -567,10 +579,17 @@ export class UI {
 
   sync(state: UIState): void {
     this.state = state;
-    for (const [id, btn] of this.toolButtons) btn.classList.toggle('active', id === state.tool);
-    for (const [speed, btn] of this.speedButtons) btn.classList.toggle('active', speed === state.speed);
+    for (const [id, btn] of this.toolButtons) {
+      btn.classList.toggle('active', id === state.tool);
+      btn.setAttribute('aria-pressed', String(id === state.tool));
+    }
+    for (const [speed, btn] of this.speedButtons) {
+      btn.classList.toggle('active', speed === state.speed);
+      btn.setAttribute('aria-pressed', String(speed === state.speed));
+    }
     for (const [id, btn] of this.tabButtons) {
       btn.classList.toggle('active', id === this.activeTab);
+      btn.setAttribute('aria-selected', String(id === this.activeTab));
       if (id === 'events') {
         if (state.events.length > 0) btn.dataset.count = String(Math.min(99, state.events.length));
         else delete btn.dataset.count;
@@ -586,6 +605,10 @@ export class UI {
     this.pauseButton.appendChild(icon(state.paused ? 'play' : 'pause'));
     this.pauseButton.classList.toggle('paused', state.paused);
     this.pauseButton.title = state.paused ? 'Resume (Space)' : 'Pause (Space)';
+    this.pauseButton.setAttribute(
+      'aria-label',
+      state.paused ? 'Resume simulation' : 'Pause simulation',
+    );
 
     this.undoButton.disabled = !state.canUndo;
     this.redoButton.disabled = !state.canRedo;

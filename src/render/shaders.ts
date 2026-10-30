@@ -116,9 +116,34 @@ export const BACKGROUND_FRAG = /* glsl */ `
   uniform vec2 uOffset;
   uniform float uTime;
   uniform float uIntensity;
+  /** World units covered by one screen pixel; anchors the graticule in space. */
+  uniform float uScale;
+  uniform float uGraticule;
 
   float hash(vec2 p) {
     return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
+  }
+
+  /** Anti-aliased grid line of the given world-space spacing. */
+  float gridLine(vec2 world, float spacing, float thickness) {
+    vec2 g = abs(fract(world / spacing - 0.5) - 0.5) * spacing;
+    float d = min(g.x, g.y);
+    float aa = uScale; // one-pixel footprint in world units
+    return 1.0 - smoothstep(thickness - aa, thickness + aa, d);
+  }
+
+  /** Picks the smallest power-of-ten (×1/2/5) whose lines land ≥ minPx apart,
+   *  so the graticule reads as a scale bar at every zoom instead of texture. */
+  float adaptiveSpacing(float minPx) {
+    float target = minPx * uScale;
+    float decade = pow(10.0, floor(log(target) / log(10.0)));
+    for (int i = 0; i < 4; i++) {
+      if (decade >= target) return decade;
+      if (decade * 2.0 >= target) return decade * 2.0;
+      if (decade * 5.0 >= target) return decade * 5.0;
+      decade *= 10.0;
+    }
+    return decade;
   }
 
   float noise(vec2 p) {
@@ -182,6 +207,24 @@ export const BACKGROUND_FRAG = /* glsl */ `
 
     float vignette = smoothstep(1.25, 0.35, length(p * vec2(1.0, 1.05)));
     col *= mix(0.55, 1.0, vignette);
+
+    // World-anchored graticule (D9): a functional scale annotation that pans
+    // and zooms with the universe, drawn faintly behind everything.
+    if (uGraticule > 0.5) {
+      vec2 fragPx = uv * uResolution;
+      vec2 centerPx = uResolution * 0.5;
+      vec2 world = uOffset + (fragPx - centerPx) * uScale;
+      // Minor lines every ~110px, majors at 5×; adapts across all zoom levels.
+      float minorSpacing = adaptiveSpacing(110.0);
+      float minor = gridLine(world, minorSpacing, 1.0);
+      float major = gridLine(world, minorSpacing * 5.0, 1.5);
+      // Fade the grid out toward the frame edge so it never boxes the view.
+      float grFade = 1.0 - smoothstep(0.35, 0.95, length(p));
+      vec3 gridCol = vec3(0.18, 0.30, 0.38);
+      col += gridCol * minor * 0.06 * grFade;
+      col += gridCol * major * 0.14 * grFade;
+    }
+
     col *= uIntensity;
     gl_FragColor = vec4(col, 1.0);
   }

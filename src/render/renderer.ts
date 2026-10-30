@@ -34,6 +34,7 @@ import { eventHorizon, PARTICLE_CAPACITY } from '../core/world';
 THREE.ColorManagement.enabled = false;
 
 const CAMERA_FOV = 45;
+const FOV_RAD = (CAMERA_FOV * Math.PI) / 180;
 const PLANE = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
 
 export interface ToolPreview {
@@ -172,6 +173,8 @@ export class UniverseRenderer {
         uOffset: { value: new THREE.Vector2(0, 0) },
         uTime: { value: 0 },
         uIntensity: { value: 1 },
+        uScale: { value: 4 },
+        uGraticule: { value: 1 },
       },
       depthTest: false,
       depthWrite: false,
@@ -943,6 +946,10 @@ export class UniverseRenderer {
     (this.pointMat.uniforms.uTime.value as number) = options.time;
     this.bgMat.uniforms.uTime.value = options.time;
     this.bgMat.uniforms.uOffset.value.set(this.camera.position.x, this.camera.position.y);
+    // World units per pixel at the focal plane — anchors the graticule (D9).
+    const unitsPerPixel =
+      (2 * Math.max(1, this.camera.position.z) * Math.tan(FOV_RAD / 2)) / this.height;
+    (this.bgMat.uniforms.uScale.value as number) = unitsPerPixel;
     this.compositeMat.uniforms.uTime.value = options.time;
     this.updateLensUniforms();
   }

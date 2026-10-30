@@ -144,7 +144,11 @@ export class App implements UIActions, InteractionHost {
           1.2,
         );
         if (survivor.kind === 'blackhole') this.playAbsorb();
-        else this.audio.merge();
+        else {
+          this.audio.merge();
+          // A soft pulse at the merge site — much gentler than a supernova.
+          this.renderer.flash(0.12);
+        }
       },
       onBlackHoleAbsorb: (hole, count) => {
         this.events.push(
