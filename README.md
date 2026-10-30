@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <em>Drop a black hole into a spiral galaxy. Detonate the star beside it.<br>Then watch the debris decide what happens next.</em>
+  <em>Bend gravity. Shape orbits. Trigger supernovas.<br>Explore a universe in motion — and see what happens when you disturb it.</em>
 </p>
 
 <p align="center">
@@ -13,100 +13,112 @@
 </p>
 
 <p align="center">
-  <sub>Runs in the browser with WebGL · no install, no account, no backend · <a href="https://event-horizon-teal.vercel.app">event-horizon-teal.vercel.app</a></sub>
+  <sub>Interactive WebGL experience · runs in your browser · no account or backend required · <a href="https://event-horizon-teal.vercel.app">event-horizon-teal.vercel.app</a></sub>
 </p>
 
 <br>
 
 <p align="center">
-  <a href="https://event-horizon-teal.vercel.app"><img src="artifacts/readme/footage-hungry-singularity.gif" width="100%" alt="Real footage from the production app with the interface hidden: a black hole's spiral accretion disc turns, a stream of painted dust drifts in, and a supernova's shockwave sweeps out across the field."></a>
+  <a href="https://event-horizon-teal.vercel.app"><img src="artifacts/readme/footage-hungry-singularity.gif" width="100%" alt="Production footage with the interface hidden: a black hole's accretion disc turns, dust drifts toward it, and a nearby supernova sends a shockwave across the field."></a>
   <br>
-  <sub><b>Real footage</b>, recorded from the production build with the interface hidden. <i>The Hungry Singularity</i>: dust painted toward the disc, then a supernova beside it.</sub>
+  <sub><b>Captured from the live application.</b> In <i>The Hungry Singularity</i>, matter is painted toward the accretion disc before a nearby supernova sends a shockwave through the scene.</sub>
 </p>
 
-## A universe you are allowed to break
+## A universe in your hands
 
-Event Horizon is a 2D gravity sandbox that runs in your browser. Every star, planet, well and grain of dust pulls on everything else, and you get the tools a universe normally keeps to itself: open a singularity, set off a supernova, throw a planet into orbit, or pour a river of matter into space and see where gravity takes it.
+Event Horizon is an interactive cosmic physics sandbox built around one simple idea: give people the tools to disturb a universe, then let gravity tell the rest of the story.
 
-It is not a screensaver. The physics core runs on a fixed clock, separate from the renderer, so the same seed gives the same starting universe every time, and you can pause it, rewind it, undo what you did, save it and load it back. Discoveries are noticed as they happen: a stable orbit, matter crossing an event horizon, a cataclysmic merge, a shockwave, a gravitational slingshot.
+Drop a black hole into a spiral galaxy. Redirect a stream of matter. Launch a planet into orbit or detonate a star. Watch particles scatter, objects interact, and discoveries emerge from the simulation.
 
-> Inside the app the title still reads **GOD MODE**. Event Horizon is the project's public name; it is the same program.
+This is more than a space-themed screensaver. The simulation advances on a fixed clock, independently of rendering, with reproducible starting worlds and tools to pause, rewind, undo, checkpoint, save, and revisit experiments. Its discovery system detects meaningful events as they happen, including stable orbits, event-horizon captures, merges, shockwaves, and gravitational slingshots.
 
-## Seven ways to disturb a universe
+> The application currently displays the in-app title **GOD MODE**. Event Horizon is the public project name for that same application.
 
-| Key | Tool | What it does |
+## Seven tools. One universe.
+
+| Key | Tool | What you can do |
 | :-: | --- | --- |
-| `1` | **Observe** | Click a body to inspect it, drag to move it. Drag empty space to pan. |
-| `2` | **Gravity** | Click to drop a gravity well. Drag to reposition it. |
-| `3` | **Black Hole** | Click to open a singularity. Matter inside the horizon is consumed. |
-| `4` | **Supernova** | Click to detonate. The expanding front accelerates everything it crosses. |
-| `5` | **Repel** | Click to place a repulsor. Matter is pushed out to its influence radius. |
-| `6` | **Paint** | Drag to stream matter into space. Faster strokes fire faster matter. |
-| `7` | **Orbit** | Click to launch a planet on a circular orbit around the nearest mass. |
+| `1` | **Observe** | Inspect bodies, select them, move them, and navigate the field. |
+| `2` | **Gravity** | Place and tune a gravity well to bend nearby trajectories. |
+| `3` | **Black Hole** | Create a singularity and watch matter approach and cross its event horizon. |
+| `4` | **Supernova** | Detonate a star and send an expanding shockwave through the system. |
+| `5` | **Repel** | Place a repulsor and push matter away from its influence. |
+| `6` | **Paint** | Stream particles into the universe; stroke speed affects how quickly matter is emitted. |
+| `7` | **Orbit** | Launch a body into an orbit around the nearest mass. |
 
-The Force Lab shows the selected tool's settings, such as a gravity well's mass, influence radius and strength, and the universe itself has two dials: the gravitational constant and trail length.
+The Force Lab exposes the selected tool's parameters. Tune the gravitational constant and trail length to change how the universe behaves and how its motion is displayed.
 
-## Six worlds to start from
+## Six starting worlds
 
-Every world is a reproducible starting state built from a fixed seed. Loading one clears undo history but never reloads the page.
+Each world is a reproducible starting point generated from a fixed seed. Choose a setup, experiment, and return to the same initial conditions whenever you want.
 
 <table>
 <tr>
 <td width="50%" valign="top">
 <img src="artifacts/readme/still-hungry-singularity.jpg" width="100%" alt="The Hungry Singularity: a black hole wrapped in a spiral accretion disc.">
-<br><b>The Hungry Singularity</b><br><sub>An accretion disc spirals into a black hole. Feed it.</sub>
+<br><b>The Hungry Singularity</b><br><sub>A black hole and its swirling accretion disc. Send matter inward and watch the encounter unfold.</sub>
 </td>
 <td width="50%" valign="top">
 <img src="artifacts/readme/still-stellar-collapse.jpg" width="100%" alt="Stellar Collapse: a bright star inside a dense cloud of dust.">
-<br><b>Stellar Collapse</b><br><sub>A dense, unstable cloud with a star about to detonate.</sub>
+<br><b>Stellar Collapse</b><br><sub>A dense stellar environment poised for a dramatic release of energy.</sub>
 </td>
 </tr>
 <tr>
 <td width="50%" valign="top">
 <img src="artifacts/readme/still-binary-dance.jpg" width="100%" alt="Binary Dance: an amber star and a blue-white star in mutual orbit.">
-<br><b>Binary Dance</b><br><sub>Two stars of equal mass locked in a mutual orbit, wrapped in dust.</sub>
+<br><b>Binary Dance</b><br><sub>Two stars in a mutual orbit, surrounded by drifting matter.</sub>
 </td>
 <td width="50%" valign="top">
 <img src="artifacts/readme/still-total-chaos.jpg" width="100%" alt="Total Chaos: stars and singularities with their influence rings drawn around them.">
-<br><b>Total Chaos</b><br><sub>Two singularities, four stars and a repulsor in open conflict.</sub>
+<br><b>Total Chaos</b><br><sub>Singularities, stars, and a repulsor sharing one unpredictable field.</sub>
 </td>
 </tr>
 </table>
 
-Also in the atlas: **Prime Field**, a live spiral galaxy with a binary companion and three planets, and **Slingshot**, where a massive star bends a high-velocity stream and you aim the pass.
+The atlas also includes **Prime Field**, a spiral galaxy with a binary companion and three planets, and **Slingshot**, a high-velocity encounter shaped by a massive star's gravity.
 
-<sub>All four images are unedited frames from the production app (cropped, interface hidden). The decorative wordmark at the top is the only illustration on this page.</sub>
+<sub>These are frames captured from the production application, cropped with the interface hidden. The wordmark above is decorative artwork.</sub>
 
-## The observatory
+## Inside the observatory
 
 <p align="center">
-  <img src="artifacts/user-acceptance/session-c-singularity.png" width="100%" alt="The full interface at 1440 by 900: the tool rail on the left, the Force Lab panel on the right showing a selected gravity well's position, velocity, mass and sliders, discovery notifications, and the transport bar with pause, speed, sim time, rewind and reset.">
+  <img src="artifacts/user-acceptance/session-c-singularity.png" width="100%" alt="The full Event Horizon interface showing the tool rail, Force Lab, discovery notifications, and simulation transport controls.">
   <br>
-  <sub>The full interface during user acceptance testing: tool rail, Force Lab with a selected gravity well, discovery feed, and the transport bar with speed, rewind and reset.</sub>
+  <sub>The full instrument: tool rail, Force Lab, discovery feed, simulation transport, rewind, and reset.</sub>
 </p>
 
-- **Time is yours.** Pause, run at 0.25× to 4×, scrub back through snapshot rewind, set checkpoints, undo and redo.
-- **Five missions.** Discovery objectives (stable orbit, event horizon, cataclysmic merge, shockwave, gravitational slingshot) light up when the simulation detects them, alongside a live event feed.
-- **Keep your experiments.** Up to eight local saves, with rename, JSON export and validated JSON import. Nothing leaves your browser.
-- **Sound and light.** Procedural WebGL visuals and Web Audio effects, with Cinematic, Balanced and Performance quality presets.
+- **Control time.** Pause and resume, change simulation speed, rewind through captured states, create checkpoints, and undo or redo experiments.
+- **Follow discoveries.** Objectives and the live event feed surface detected events such as stable orbits, event-horizon captures, merges, shockwaves, and gravitational slingshots.
+- **Keep your experiments.** Store up to eight local saves, rename them, export JSON, and import validated experiments. Saves remain in your browser.
+- **Hear the universe.** Procedural audio responds to the simulation with ambient layers and event sounds. Mute it whenever you like.
+- **Choose your visual quality.** Cinematic, Balanced, Performance, and adaptive Auto quality options tune rendering without changing the underlying particle simulation.
+
+## Built as an instrument
+
+Event Horizon combines a deterministic simulation core with a real-time Three.js/WebGL renderer. The visual language is designed around the physics: a black hole's photon ring and limb-darkened photosphere, Doppler-shifted accretion-disc lighting, stellar diffraction spikes, additive particle trails, shockwaves, and a world-anchored graticule that scales as you navigate.
+
+The engineering is just as deliberate:
+
+- **Fixed-step physics:** a 1/60-second simulation step keeps physics independent of display frame rate.
+- **Stable numerical behavior:** semi-implicit integration, Newtonian gravity with Plummer softening, and bounded acceleration and speed.
+- **Deterministic particle recycling:** particle storage is bounded, with a 24,000-particle ceiling.
+- **Two-phase slingshot detection:** a flyby is armed on inbound motion and counted only after outbound escape, avoiding false discoveries during scenario loading.
+- **Rendering-only quality tiers:** visual quality changes do not trim or otherwise mutate the simulation's target particle population.
+- **Adaptive Auto quality:** a measured P95 frame-time controller adjusts rendering quality with hysteresis and cooldown to avoid rapid oscillation.
+- **Event-driven effects:** merges, captures, stellar collapse, supernova shockwaves, and other simulation events drive visual and audio feedback.
+
+The black-hole and relativistic-looking effects are visual approximations layered over the simulation; this is an interactive sandbox, not a general-purpose relativistic astrophysics solver.
 
 <details>
-<summary><b>Under the hood</b>: physics, rendering and project layout</summary>
+<summary><b>Architecture and source layout</b></summary>
 <br>
 
-The app is a Vite and TypeScript single-page application with a Three.js/WebGL renderer. The physics core is separated from rendering:
-
-- a fixed-step accumulator at 1/60 s, so frame rate does not change the physics;
-- semi-implicit integration with Newtonian gravity and Plummer softening, plus acceleration and speed clamps so close passes stay finite;
-- bounded particle storage (24,000 particles at most) and deterministic scenario seeds;
-- merges, black-hole capture, stellar collapse and supernova shockwaves handled in the step, reported as events.
-
-The UI is DOM-based; `src/app.ts` coordinates simulation, rendering, history, input and persistence.
+The application is a Vite and TypeScript single-page app. The physics core is independent of the Three.js/WebGL renderer; `src/app.ts` coordinates simulation, rendering, input, history, and persistence.
 
 ```text
 src/core/    physics, particles, worlds, scenarios, events, objectives, history, serialization
 src/render/  Three.js renderer, shaders, camera
-src/input/   mouse, pointer, and touch tool interactions
+src/input/   pointer, mouse, and touch interactions
 src/ui/      panels, controls, help, notifications
 src/audio/   procedural Web Audio
 src/app.ts   application orchestration
@@ -116,14 +128,14 @@ src/app.ts   application orchestration
 
 ## Run it locally
 
-Requires Node.js 20.19 or newer and npm. Install the exact dependency tree from the lockfile:
+Requires Node.js 20.19 or newer and npm.
 
 ```sh
 npm ci
 npm run dev
 ```
 
-Open the URL Vite prints (normally `http://localhost:5173`).
+Open the local URL printed by Vite (normally `http://localhost:5173`).
 
 Build and preview the production bundle:
 
@@ -132,13 +144,11 @@ npm run build
 npm run preview
 ```
 
-Preview runs at `http://localhost:4173`.
-
 ## Controls
 
 | Input | Action |
 | --- | --- |
-| `1`–`7` | Select Observe, Gravity, Black Hole, Supernova, Repel, Paint, Orbit |
+| `1`–`7` | Select Observe, Gravity, Black Hole, Supernova, Repel, Paint, or Orbit |
 | Left click / drag | Use the selected tool; drag selected bodies to move them |
 | Left drag on empty space with Observe | Pan the camera |
 | Right / middle drag | Pan with any tool |
@@ -150,47 +160,70 @@ Preview runs at `http://localhost:4173`.
 | `M` / `P` / `L` / `H` | Mute / performance display / labels / hide interface |
 | `?` | Open the help overlay |
 
-Touch users can tap and drag tools, pan with two fingers, pinch to zoom, and use the panel toggle to reach controls.
+On touch devices, tap and drag to use tools, use two fingers to pan, and pinch to zoom. The panel toggle keeps controls reachable on smaller screens.
 
-**Accessibility and comfort.** The app follows the system `prefers-reduced-motion` setting: time-based shader animation is frozen and particle trails are shortened. Every tool and most actions have a keyboard shortcut, and `?` lists them. Sound can be muted with `M` or the volume control, and `H` hides the interface entirely. The Performance preset lowers rendering cost on weaker devices.
+**Accessibility and comfort.** The application responds to `prefers-reduced-motion`, provides visible keyboard focus, and labels toolbar and transport controls for assistive technology. Sound can be muted with `M` or the volume control. The Performance and Auto quality options help adapt rendering to available hardware.
 
-## Tests and verification
+## Performance and benchmarks
+
+The release benchmark was measured on an **RTX 3050 Laptop GPU (6 GB)** using **ANGLE over Vulkan**, at **1280×800**. The recorded final run reported:
+
+| Metric | Result |
+| --- | ---: |
+| P50 frame time | 6.9 ms |
+| P95 frame time | 7.0 ms |
+| P99 frame time | 7.1 ms |
+| Worst frame time | 7.1 ms |
+| Reported frame rate | 144.1 FPS |
+
+These measurements were display-refresh-bound at 144 Hz; they do not establish maximum GPU throughput. The benchmark report documents the methodology, quality tiers, environment, and limitations. See [`docs/BENCHMARKS.md`](docs/BENCHMARKS.md).
+
+## Tests and release verification
+
+The latest release verification recorded:
+
+| Check | Result |
+| --- | ---: |
+| Unit tests (Vitest) | **65/65 passed** |
+| Local browser smoke | **18/18 passed** |
+| Production browser smoke | **18/18 passed** |
+| QA smoke | **6/6 passed** |
+| Seeded campaign personas | **10/10 passed** |
+| Campaign fuzz cases | **100/100 passed** |
+| User acceptance checks | **12/12 passed** |
+| Extended session | **600.8 seconds** |
+
+Typecheck and production build completed cleanly. The extended acceptance session reported no console errors, uncaught exceptions, or failed network requests.
+
+Run the core checks locally:
 
 ```sh
 npm run typecheck
 npm test
 npm run build
-npm run preview   # terminal 1
-npm run smoke     # terminal 2; set CHROME_PATH if needed
 ```
 
-| Check | Result |
-| --- | --- |
-| Unit tests (Vitest) | 46 passing |
-| Production-browser smoke checks | 18 passing locally, 18 passing against the live deployment |
-| User acceptance | 6 viewport sizes, 6 worlds, 7 tools, save/restore, touch emulation, a 10-minute session |
-| npm advisories at release | 0 known |
-| Live browser verification | no console errors or failed network requests |
-
 <details>
-<summary>What the automated checks cover, and what they don't</summary>
+<summary><b>Verification scope and limitations</b></summary>
 <br>
 
-The smoke suite exercises the declared favicon, rendering, tools, worlds, history, save/reload, JSON export/import and malformed-import rejection. The separate user acceptance pass covered all six requested viewport sizes, all six worlds and seven tools, isolated save/restore flows, touch emulation, and a 10-minute session. The current lockfile install reported zero known npm advisories during release verification. Reports and screenshots are retained in `scripts/` and `artifacts/user-acceptance/`.
+The release campaign exercised seeded scenarios, tool interactions, quality switching, save/restore, responsive layouts, focus behavior, and an extended session. The campaign is seeded and finite, not an exhaustive proof of correctness.
 
-The browser checks use headless Chromium with SwiftShader software WebGL in this environment. Those FPS readings do not measure physical GPU performance. Physical touch hardware, browser zoom edge cases, and WebGL context-loss recovery have not been fully verified.
+The RTX 3050 benchmark is refresh-bound at the tested resolution; higher-resolution GPU-bound benchmarking remains useful future work. Automated audio checks validate code paths, not subjective sound quality through physical speakers. Touch emulation does not replace testing on physical touch hardware. Browser zoom edge cases and WebGL context-loss recovery have not been fully verified.
+
+Detailed benchmark methodology and defect history are retained in `docs/BENCHMARKS.md` and `docs/DEFECTS.md`.
 
 </details>
 
 ## Deploy to Vercel
 
-This is a static Vite app. Import the repository in Vercel and use the Vite preset, `npm ci` for installation, `npm run build` as the build command, and `dist` as the output directory. No backend or environment variables are required. The project does not use client-side URL routes, so no SPA rewrite is needed.
+Event Horizon is a static Vite application. Use the Vite preset, `npm ci` for installation, `npm run build` as the build command, and `dist` as the output directory. No backend or environment variables are required.
 
-Production deployment: [event-horizon-teal.vercel.app](https://event-horizon-teal.vercel.app).
+Production: [event-horizon-teal.vercel.app](https://event-horizon-teal.vercel.app).
 
 ## Contributing
 
-Bug reports and ideas are welcome as [issues](https://github.com/aspire488/event-horizon/issues). Please open an issue before starting a pull request, and run `npm run verify` (typecheck, unit tests, build) before submitting. Because no license has been chosen yet (see below), contribution terms are still to be decided.
+Bug reports and ideas are welcome through [GitHub Issues](https://github.com/aspire488/event-horizon/issues). Before opening a pull request, describe the proposed change and run the relevant typecheck, test, and build commands. Include screenshots for visual changes and benchmark evidence for performance-sensitive changes.
 
 ## License
 
