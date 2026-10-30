@@ -79,6 +79,8 @@ export interface UIState {
   bodyCount: number;
   fps: number;
   frameMs: number;
+  /** P95 frame time over the retained sample window (honest tail metric). */
+  frameP95: number;
   drawCalls: number;
   perfVisible: boolean;
   labelsVisible: boolean;
@@ -152,6 +154,77 @@ const KIND_LABEL: Record<BodyKind, string> = {
 
 const SPEEDS = [0.25, 0.5, 1, 2, 4];
 
+// --------------------------------------------------------------- first-run coach
+// A passive, pointer-transparent strip. Only its dismiss button takes input.
+// Guarded by sessionStorage so it never returns in the same tab session.
+
+const COACH_STORAGE_KEY = 'godmode.coach.v1';
+const COACH_STEPS = ['DRAG · ORBIT', 'SCROLL · ZOOM', 'CLICK A STAR · SELECT', 'PRESS ? · MANUAL'];
+
+let coachNode: HTMLElement | null = null;
+let coachTimer: number | null = null;
+
+function coachDismissed(): boolean {
+  try {
+    return window.sessionStorage.getItem(COACH_STORAGE_KEY) === '1';
+  } catch {
+    return true; // storage unavailable (private mode) — stay quiet
+  }
+}
+
+function rememberCoachDismissed(): void {
+  try {
+    window.sessionStorage.setItem(COACH_STORAGE_KEY, '1');
+  } catch {
+    /* storage unavailable — ignore */
+  }
+}
+
+function hideCoach(): void {
+  if (coachTimer !== null) {
+    window.clearTimeout(coachTimer);
+    coachTimer = null;
+  }
+  coachNode?.classList.add('hidden');
+}
+
+function buildCoach(host: HTMLElement): void {
+  if (coachNode) return;
+  const coach = el('div', 'coach hidden');
+  const text = el('span', 'coach-text');
+  COACH_STEPS.forEach((step, index) => {
+    if (index > 0) text.append(el('span', 'coach-sep', '·'));
+    text.append(el('span', 'coach-step', step));
+  });
+  const dismiss = el('button', 'coach-dismiss');
+  dismiss.type = 'button';
+  dismiss.title = 'Dismiss coach';
+  dismiss.setAttribute('aria-label', 'Dismiss coach');
+  dismiss.append(icon('close'));
+  dismiss.addEventListener('click', () => {
+    hideCoach();
+    rememberCoachDismissed();
+  });
+  coach.append(text, dismiss);
+  host.appendChild(coach);
+  coachNode = coach;
+}
+
+/**
+ * Shows the passive first-run coach strip for ~10 s. No-op once dismissed or
+ * timed out in this tab session. Self-initializing from the UI constructor;
+ * exported so app.ts could re-trigger it explicitly if desired.
+ */
+export function showFirstRunCoach(): void {
+  if (!coachNode || coachDismissed()) return;
+  coachNode.classList.remove('hidden');
+  if (coachTimer !== null) window.clearTimeout(coachTimer);
+  coachTimer = window.setTimeout(() => {
+    hideCoach();
+    rememberCoachDismissed();
+  }, 10000);
+}
+
 export class UI {
   private readonly actions: UIActions;
   private readonly hud: HTMLElement;
@@ -220,8 +293,14 @@ export class UI {
     this.undoButton = this.iconBtn('undo', 'Undo (Z)', () => this.actions.undo());
     this.redoButton = this.iconBtn('redo', 'Redo (Y)', () => this.actions.redo());
     this.qualitySelect = el('select', 'quality-select');
-    for (const q of ['cinematic', 'balanced', 'performance'] as QualityLevel[]) {
-      const opt = el('option', '', q[0].toUpperCase() + q.slice(1));
+    const qualityLabels: Record<QualityLevel, string> = {
+      auto: 'Auto · adaptive',
+      cinematic: 'Cinematic',
+      balanced: 'Balanced',
+      performance: 'Performance',
+    };
+    for (const q of ['auto', 'cinematic', 'balanced', 'performance'] as QualityLevel[]) {
+      const opt = el('option', '', qualityLabels[q]);
       opt.value = q;
       this.qualitySelect.appendChild(opt);
     }
@@ -408,6 +487,8 @@ export class UI {
     );
 
     this.renderPanel();
+    buildCoach(this.hud);
+    showFirstRunCoach();
     this.flashHint('Drag anywhere to bend matter · 1–7 select powers · Space pauses', 11000);
   }
 
@@ -428,6 +509,7 @@ export class UI {
     const fields = [
       ['fps', 'FPS'],
       ['frame', 'FRAME'],
+      ['p95', 'P95 FRAME'],
       ['matter', 'MATTER'],
       ['bodies', 'BODIES'],
       ['draws', 'DRAW CALLS'],
@@ -547,6 +629,7 @@ export class UI {
     if (state.perfVisible) {
       this.perfFields.fps.textContent = state.fps > 0 ? state.fps.toFixed(0) : '—';
       this.perfFields.frame.textContent = `${state.frameMs.toFixed(1)} ms`;
+      this.perfFields.p95.textContent = state.frameP95 > 0 ? `${state.frameP95.toFixed(1)} ms` : '—';
       this.perfFields.matter.textContent = formatNumber(state.particleCount);
       this.perfFields.bodies.textContent = String(state.bodyCount);
       this.perfFields.draws.textContent = String(state.drawCalls);

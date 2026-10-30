@@ -16,12 +16,15 @@ import {
   PALETTE_VEC3,
   PARTICLE_FRAG,
   PARTICLE_VERT,
+  PHOTON_RING_FRAG,
   PLANET_FRAG,
   RING_VERT,
   SHOCK_FRAG,
   STAR_FRAG,
   STREAK_FRAG,
   STREAK_VERT,
+  TRAIL_FRAG,
+  TRAIL_VERT,
 } from './shaders';
 import type { Body, QualityLevel, Shockwave, ToolId, World } from '../core/types';
 import { eventHorizon, PARTICLE_CAPACITY } from '../core/world';
@@ -57,10 +60,12 @@ interface BodyView {
   core: THREE.Mesh | null;
   accretion: THREE.Mesh | null;
   horizon: THREE.Mesh | null;
+  photon: THREE.Mesh | null;
   ring: THREE.Mesh | null;
   selection: THREE.Mesh | null;
   trail: THREE.Line;
   trailAttr: THREE.BufferAttribute;
+  trailFadeAttr: THREE.BufferAttribute;
   lastRadius: number;
   lastInfluence: number;
   mats: THREE.ShaderMaterial[];
@@ -125,6 +130,7 @@ export class UniverseRenderer {
 
   private world: World | null = null;
   private quality: QualityLevel = 'balanced';
+  private trailAlpha = 0.34;
   private width = 1;
   private height = 1;
   private bloomEnabled = true;
@@ -256,6 +262,8 @@ export class UniverseRenderer {
         uPixelScale: { value: 1200 },
         uTime: { value: 0 },
         uPalette: { value: PALETTE_VEC3.map((p) => new THREE.Vector3(...p)) },
+        uGain: { value: 1.15 },
+        uSizeMin: { value: 2.2 },
       },
       transparent: true,
       blending: THREE.AdditiveBlending,
@@ -379,6 +387,17 @@ export class UniverseRenderer {
     this.lensingEnabled = quality !== 'performance';
     const dprCap = quality === 'cinematic' ? 2 : quality === 'balanced' ? 1.6 : 1;
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, dprCap));
+    // Particle emissive tuning per tier: performance gets the smallest lift,
+    // cinematic the richest.
+    const gain = quality === 'cinematic' ? 1.3 : quality === 'balanced' ? 1.15 : 1.0;
+    const sizeMin = quality === 'cinematic' ? 2.6 : quality === 'balanced' ? 2.2 : 1.8;
+    (this.pointMat.uniforms.uGain.value as number) = gain;
+    (this.pointMat.uniforms.uSizeMin.value as number) = sizeMin;
+    this.trailAlpha = quality === 'cinematic' ? 0.38 : quality === 'balanced' ? 0.34 : 0.24;
+    for (const view of this.bodyViews.values()) {
+      const tMat = view.trail.material as THREE.ShaderMaterial;
+      if (tMat.uniforms?.uAlpha) tMat.uniforms.uAlpha.value = this.trailAlpha;
+    }
     this.resize(this.width, this.height);
   }
 
@@ -439,6 +458,7 @@ export class UniverseRenderer {
     let core: THREE.Mesh | null = null;
     let accretion: THREE.Mesh | null = null;
     let horizon: THREE.Mesh | null = null;
+    let photon: THREE.Mesh | null = null;
     let ring: THREE.Mesh | null = null;
 
     const makeMat = (fragment: string, uniforms: Record<string, THREE.IUniform>, additive = true): THREE.ShaderMaterial => {
@@ -493,6 +513,7 @@ export class UniverseRenderer {
         uColor: { value: color },
         uTime: { value: 0 },
         uSeed: { value: body.seed },
+        uSpin: { value: 0 },
       });
       accretion = new THREE.Mesh(this.planeGeo, accMat);
       accretion.scale.setScalar(body.radius * 11);
@@ -510,6 +531,18 @@ export class UniverseRenderer {
       horizon.frustumCulled = false;
       horizon.renderOrder = 2;
       group.add(horizon);
+
+      // Thin photon ring hugging the shadow's edge, drawn additively on top.
+      const phMat = makeMat(PHOTON_RING_FRAG, {
+        uColor: { value: new THREE.Color('#cfd8ff') },
+        uTime: { value: 0 },
+      });
+      phMat.depthTest = false;
+      photon = new THREE.Mesh(this.planeGeo, phMat);
+      photon.scale.setScalar(body.radius * 3.1);
+      photon.frustumCulled = false;
+      photon.renderOrder = 4;
+      group.add(photon);
     } else {
       const inner = body.influence > 0 ? Math.min(0.4, body.radius / body.influence) : 0.02;
       const mat = makeMat(FORCE_RING_FRAG, {
@@ -554,16 +587,25 @@ export class UniverseRenderer {
     const trailAttr = new THREE.BufferAttribute(new Float32Array(222 * 3), 3).setUsage(
       THREE.DynamicDrawUsage,
     );
+    const trailFadeAttr = new THREE.BufferAttribute(new Float32Array(222), 1).setUsage(
+      THREE.DynamicDrawUsage,
+    );
     trailGeo.setAttribute('position', trailAttr);
+    trailGeo.setAttribute('aFade', trailFadeAttr);
     trailGeo.setDrawRange(0, 0);
-    const trailMat = new THREE.LineBasicMaterial({
-      color: new THREE.Color(paletteColor(body.hue)),
+    const trailMat = new THREE.ShaderMaterial({
+      vertexShader: TRAIL_VERT,
+      fragmentShader: TRAIL_FRAG,
+      uniforms: {
+        uColor: { value: new THREE.Color(paletteColor(body.hue)) },
+        uAlpha: { value: this.trailAlpha },
+      },
       transparent: true,
-      opacity: 0.28,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
       depthTest: false,
     });
+    mats.push(trailMat);
     const trail = new THREE.Line(trailGeo, trailMat);
     trail.frustumCulled = false;
     group.add(trail);
@@ -576,10 +618,12 @@ export class UniverseRenderer {
       core,
       accretion,
       horizon,
+      photon,
       ring,
       selection,
       trail,
       trailAttr,
+      trailFadeAttr,
       lastRadius: body.radius,
       lastInfluence: body.influence,
       mats,
@@ -630,7 +674,10 @@ export class UniverseRenderer {
         m.uniforms.uIntensity.value = intensity;
       }
       if (view.accretion) {
-        view.accretion.rotation.z = -time * 0.08;
+        const spin = -time * 0.08;
+        view.accretion.rotation.z = spin;
+        const accMat = view.accretion.material as THREE.ShaderMaterial;
+        if (accMat.uniforms.uSpin) accMat.uniforms.uSpin.value = spin;
       }
       if (body.kind === 'planet' && view.core) {
         view.core.rotation.z = body.spin * 0.25;
@@ -669,6 +716,7 @@ export class UniverseRenderer {
     if (body.kind === 'blackhole' && view.accretion && view.horizon) {
       view.accretion.scale.setScalar(body.radius * 11);
       view.horizon.scale.setScalar(body.radius * 2.6);
+      if (view.photon) view.photon.scale.setScalar(body.radius * 3.1);
     }
     if ((body.kind === 'well' || body.kind === 'repulsor') && view.ring) {
       view.ring.scale.setScalar(Math.max(body.influence, 120) * 2);
@@ -690,11 +738,19 @@ export class UniverseRenderer {
       array[i * 3 + 1] = body.trail[(offset + i) * 2 + 1];
       array[i * 3 + 2] = 0;
     }
+    // Newest sample is the body itself (fade 1); the tail decays to nothing.
+    const fade = view.trailFadeAttr.array as Float32Array;
+    for (let i = 0; i < count; i++) {
+      fade[i] = count > 1 ? i / (count - 1) : 1;
+    }
     attr.clearUpdateRanges();
+    view.trailFadeAttr.clearUpdateRanges();
     const geometry = view.trail.geometry;
     if (count > 0) {
       attr.addUpdateRange(0, count * 3);
       attr.needsUpdate = true;
+      view.trailFadeAttr.addUpdateRange(0, count);
+      view.trailFadeAttr.needsUpdate = true;
     }
     geometry.setDrawRange(0, count);
     geometry.boundingSphere = new THREE.Sphere(new THREE.Vector3(body.x, body.y, 0), 6000);
@@ -831,8 +887,15 @@ export class UniverseRenderer {
       positions[o3 + 1] = y;
       positions[o3 + 2] = z;
 
-      const remaining = field.life[i] / Math.max(field.maxLife[i], 0.001);
-      const alpha = Math.min(1, remaining * 7) * Math.min(1, (1 - remaining) * 16);
+      // Life envelope in absolute seconds: quick fade-in, fade-out near death.
+      // (A remaining-fraction envelope made long-lived galaxy dust — life ~1500s
+      // — invisible for its first minute of simulated life.)
+      const life = field.life[i];
+      const maxLife = field.maxLife[i];
+      const age = Math.max(0, maxLife - life);
+      const fadeIn = Math.min(1, age / 1.2);
+      const fadeOut = Math.min(1, Math.max(life, 0) / 1.6);
+      const alpha = fadeIn * fadeOut;
       this.lives[i] = alpha;
       this.sizes[i] = field.size[i];
       this.pals[i] = field.pal[i];

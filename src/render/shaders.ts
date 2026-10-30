@@ -7,6 +7,8 @@ export const PARTICLE_VERT = /* glsl */ `
   uniform float uPixelScale;
   uniform float uTime;
   uniform vec3 uPalette[6];
+  uniform float uGain;
+  uniform float uSizeMin;
 
   varying vec3 vColor;
   varying float vAlpha;
@@ -16,10 +18,17 @@ export const PARTICLE_VERT = /* glsl */ `
     gl_Position = projectionMatrix * mv;
     int idx = int(aPal + 0.5);
     vColor = uPalette[idx];
-    float twinkle = 0.78 + 0.22 * sin(uTime * (0.9 + aSeed * 2.6) + aSeed * 41.0);
-    vAlpha = aLife * twinkle;
-    float size = max(aSize, 0.6) * uPixelScale / max(-mv.z, 1.0);
-    gl_PointSize = clamp(size, 1.2, 46.0);
+    float twinkle = 0.82 + 0.18 * sin(uTime * (0.9 + aSeed * 2.6) + aSeed * 41.0);
+    float dist = max(-mv.z, 1.0);
+    // Apparent size: world size over distance, but floored so distant galaxy
+    // dust still lands on a couple of device pixels instead of vanishing.
+    float px = max(aSize, 0.6) * uPixelScale / dist;
+    gl_PointSize = clamp(px, uSizeMin, 42.0);
+    // When the floor kicks in the sprite is bigger than physics asked for, so
+    // gently dim it to keep energy roughly conserved — but never below the
+    // point where the far galaxy reads as a smudge.
+    float comp = clamp(px / uSizeMin, 0.5, 1.35);
+    vAlpha = aLife * twinkle * uGain * comp;
   }
 `;
 
@@ -30,13 +39,15 @@ export const PARTICLE_FRAG = /* glsl */ `
 
   void main() {
     vec2 c = gl_PointCoord - 0.5;
-    float d = length(c) * 2.0;
-    if (d > 1.0) discard;
-    float core = smoothstep(1.0, 0.0, d);
-    float glow = exp(-d * d * 3.2);
-    float a = (core * 0.6 + glow * 0.45) * vAlpha;
+    float d2 = dot(c, c) * 4.0;
+    if (d2 > 1.0) discard;
+    // Tight gaussian core + wide soft halo: reads as a real point source
+    // through a lens rather than a flat disc.
+    float core = exp(-d2 * 9.0);
+    float halo = exp(-d2 * 2.4) * 0.4;
+    float a = (core + halo) * vAlpha;
     if (a < 0.004) discard;
-    gl_FragColor = vec4(vColor * (0.85 + core * 0.7), a);
+    gl_FragColor = vec4(vColor * (1.0 + core * 1.1), a);
   }
 `;
 
@@ -59,7 +70,33 @@ export const STREAK_FRAG = /* glsl */ `
   varying float vAlpha;
   void main() {
     if (vAlpha < 0.003) discard;
-    gl_FragColor = vec4(vColor * 0.55, vAlpha);
+    gl_FragColor = vec4(vColor * 0.85, vAlpha);
+  }
+`;
+
+export const TRAIL_VERT = /* glsl */ `
+  attribute float aFade;
+  varying float vFade;
+  void main() {
+    vFade = aFade;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  }
+`;
+
+export const TRAIL_FRAG = /* glsl */ `
+  precision mediump float;
+  uniform vec3 uColor;
+  uniform float uAlpha;
+  varying float vFade;
+  void main() {
+    float f = clamp(vFade, 0.0, 1.0);
+    float a = pow(f, 1.7) * uAlpha;
+    // Extra heat right at the head so the fresh wake glows.
+    a += pow(f, 9.0) * uAlpha * 0.5;
+    if (a < 0.004) discard;
+    // Warm the trail near the body: the fresh wake is hotter than the old path.
+    vec3 col = mix(uColor, uColor * vec3(1.4, 1.02, 0.68) + vec3(0.16, 0.07, 0.0), f * f);
+    gl_FragColor = vec4(col, a);
   }
 `;
 
@@ -171,12 +208,17 @@ export const STAR_FRAG = /* glsl */ `
     vec2 c = vUv * 2.0 - 1.0;
     float r = length(c);
     if (r > 1.0) discard;
-    float pulse = 0.9 + 0.1 * sin(uTime * 1.7 + uSeed * 22.0);
-    float core = exp(-r * r * 42.0) * 1.9;
-    float mid = exp(-r * r * 8.0) * 0.6;
-    float halo = exp(-r * r * 2.1) * 0.18;
-    float a = (core + mid + halo) * pulse * uIntensity;
-    vec3 col = mix(uColor, uCoreColor, clamp(core * 0.55, 0.0, 1.0));
+    float pulse = 0.92 + 0.08 * sin(uTime * 1.7 + uSeed * 22.0);
+    float core = exp(-r * r * 46.0) * 2.1;
+    float mid = exp(-r * r * 9.0) * 0.5;
+    // Soft, extended halo — no hard limb where the quad ends.
+    float halo = exp(-r * r * 1.6) * 0.16 + exp(-r * r * 0.8) * 0.05;
+    // Subtle diffraction spikes, like telescope vanes, on brighter stars only.
+    float spikes = (exp(-abs(c.x) * 34.0) * exp(-abs(c.y) * 5.0)
+                  + exp(-abs(c.y) * 34.0) * exp(-abs(c.x) * 5.0)) * 0.10;
+    float a = (core + mid + halo + spikes) * pulse * uIntensity;
+    vec3 col = mix(uColor, uCoreColor, clamp(core * 0.5, 0.0, 1.0));
+    col += uCoreColor * spikes * 0.6;
     gl_FragColor = vec4(col, a);
   }
 `;
@@ -221,6 +263,7 @@ export const ACCRETION_FRAG = /* glsl */ `
   varying vec2 vUv;
   uniform float uTime;
   uniform float uSeed;
+  uniform float uSpin;
   uniform vec3 uColor;
 
   void main() {
@@ -228,17 +271,31 @@ export const ACCRETION_FRAG = /* glsl */ `
     float r = length(c);
     if (r > 1.0) discard;
     float ang = atan(c.y, c.x);
-    float inner = 0.17;
-    float outer = 0.86;
-    float ring = smoothstep(inner, inner + 0.05, r) * smoothstep(outer, outer - 0.14, r);
-    float streak = 0.45 + 0.55 * sin(ang * 6.0 + uTime * 2.1 - r * 37.0 + uSeed * 12.0);
-    float streak2 = 0.4 + 0.6 * sin(ang * 11.0 - uTime * 1.3 - r * 61.0);
+    // Angle in screen space (mesh rotation is folded in via uSpin) so the
+    // beaming asymmetry stays anchored to the observer, not the plasma.
+    float viewAng = ang + uSpin;
+    float inner = 0.20;
+    float outer = 0.92;
+    float ring = smoothstep(inner, inner + 0.07, r) * smoothstep(outer, outer - 0.22, r);
+    // Differential rotation: inner material shears faster than the outer disc.
+    float swirl = ang * 5.0 - uTime * 2.3 + r * 30.0 + uSeed * 12.0;
+    float swirl2 = ang * 9.0 + uTime * 1.1 - r * 56.0;
+    float streak = 0.5 + 0.5 * sin(swirl);
+    float streak2 = 0.5 + 0.5 * sin(swirl2);
+    float turb = 0.34 + 0.52 * streak + 0.3 * streak2 * streak;
     float heat = smoothstep(outer, inner, r);
-    float doppler = 0.55 + 0.45 * cos(ang - uTime * 0.4);
-    vec3 hot = mix(vec3(1.0, 0.52, 0.22), vec3(0.72, 0.62, 1.0), smoothstep(inner, outer, r));
-    float a = ring * (0.22 + heat * 0.95) * (0.4 + streak * 0.45 + streak2 * 0.25) * doppler;
-    a *= 0.85;
-    gl_FragColor = vec4(mix(uColor, hot, 0.7), a);
+    // Relativistic doppler beaming: the approaching side of the disc is
+    // brighter and blue-shifted; the receding side dims and reddens.
+    float dop = max(1.0 + 0.8 * cos(viewAng - 0.4), 0.06);
+    float beam = pow(dop, 1.7);
+    vec3 cold = vec3(0.92, 0.30, 0.10);
+    vec3 warm = vec3(1.0, 0.60, 0.26);
+    vec3 blue = vec3(0.66, 0.74, 1.0);
+    vec3 tint = mix(cold, warm, smoothstep(inner, 0.65, r));
+    tint = mix(tint, blue, clamp((beam - 1.0) * 0.6, 0.0, 1.0) * heat);
+    float a = ring * (0.16 + heat * 1.0) * turb * (0.32 + 0.8 * beam) * 0.9;
+    if (a < 0.004) discard;
+    gl_FragColor = vec4(mix(uColor, tint, 0.88), clamp(a, 0.0, 1.0));
   }
 `;
 
@@ -251,10 +308,36 @@ export const HORIZON_FRAG = /* glsl */ `
     vec2 c = vUv * 2.0 - 1.0;
     float r = length(c);
     if (r > 1.0) discard;
-    float body = smoothstep(1.0, 0.94, r);
-    float rim = smoothstep(0.72, 1.0, r) * 0.9;
-    float pulse = 0.85 + 0.15 * sin(uTime * 1.2);
-    gl_FragColor = vec4(uColor * rim * pulse, body * 0.96);
+    // Opaque shadow with a crisp limb: the edge of the image is sharp, not a
+    // soft blob. Slight interior lift keeps it from reading as a dead hole.
+    float shadow = smoothstep(0.995, 0.955, r);
+    // Limb-darkened photosphere: a thin bright rim hugging the shadow edge,
+    // fading quickly inward — light grazing the photon capture radius.
+    float rim = exp(-pow((r - 0.955) * 30.0, 2.0));
+    float pulse = 0.9 + 0.1 * sin(uTime * 1.2);
+    vec3 rimCol = mix(vec3(1.0, 0.82, 0.58), vec3(0.78, 0.62, 1.0), 0.45);
+    vec3 col = vec3(0.001, 0.001, 0.004) + rimCol * rim * pulse;
+    gl_FragColor = vec4(col, max(shadow, rim * 0.9));
+  }
+`;
+
+/** Thin photon ring drawn just outside the shadow, additive over everything. */
+export const PHOTON_RING_FRAG = /* glsl */ `
+  precision mediump float;
+  varying vec2 vUv;
+  uniform vec3 uColor;
+  uniform float uTime;
+  void main() {
+    vec2 c = vUv * 2.0 - 1.0;
+    float r = length(c);
+    if (r > 1.0) discard;
+    float ang = atan(c.y, c.x);
+    float ring = exp(-pow((r - 0.84) * 26.0, 2.0));
+    // Faint brightness asymmetry from the orbiting plasma (doppler-flavoured).
+    float beam = 0.82 + 0.36 * cos(ang - uTime * 0.22);
+    float a = ring * beam;
+    if (a < 0.004) discard;
+    gl_FragColor = vec4(uColor, a);
   }
 `;
 
@@ -323,12 +406,17 @@ export const SHOCK_FRAG = /* glsl */ `
   void main() {
     vec2 c = (vUv * 2.0 - 1.0) * uSize * 0.5;
     float r = length(c);
-    float d = abs(r - uRadius);
-    float band = exp(-pow(d / max(uWidth, 0.001), 2.0) * 2.2);
-    float front = exp(-pow(d / max(uWidth * 0.22, 0.001), 2.0));
-    float a = (band * 0.32 + front * 0.8) * uAlpha;
+    float w = max(uWidth, 0.001);
+    float d = r - uRadius; // negative inside the wavefront
+    // Soft outer leading edge, bright rim at the front, decaying interior
+    // tail — a shell of energy, not a flat disc.
+    float outer = exp(-pow(max(d, 0.0) / (w * 0.45), 2.0));
+    float rim = exp(-pow(d / (w * 0.22), 2.0));
+    float tail = exp(-pow((d + w * 1.25) / (w * 1.15), 2.0)) * 0.4;
+    float a = (outer * 0.35 + rim * 0.75 + tail) * uAlpha;
     if (a < 0.004) discard;
-    gl_FragColor = vec4(mix(uColor, vec3(0.92, 0.95, 1.0), 0.45), a);
+    vec3 col = mix(uColor, vec3(0.96, 0.97, 1.0), clamp(rim * 0.8 + outer * 0.25, 0.0, 0.75));
+    gl_FragColor = vec4(col, a);
   }
 `;
 
@@ -408,24 +496,30 @@ export const COMPOSITE_FRAG = /* glsl */ `
     col += bloom * uBloom;
     col += uFlash * vec3(1.0, 0.78, 0.56);
 
-    float vig = smoothstep(1.28, 0.42, length((uv - 0.5) * vec2(1.05, 1.0)));
-    col *= mix(0.62, 1.0, vig);
+    float vig = smoothstep(1.32, 0.40, length((uv - 0.5) * vec2(1.05, 1.0)));
+    col *= mix(0.55, 1.0, vig);
 
-    col = col / (1.0 + col * 0.28);
+    // Filmic-ish curve, then an observatory grade: blacks sit cool and deep,
+    // highlights stay neutral. Keeps the background near-black without
+    // flattening the nebula or the disc.
+    col = col / (1.0 + col * 0.32);
+    float l = dot(col, vec3(0.299, 0.587, 0.114));
+    col = mix(col, col * col * (3.0 - 2.0 * col), 0.35);
+    col += vec3(0.003, 0.006, 0.013) * (1.0 - smoothstep(0.0, 0.35, l));
     float grain = fract(sin(dot(uv * uResolution + uTime, vec2(12.9898, 78.233))) * 43758.5453);
-    col += (grain - 0.5) * 0.012;
+    col += (grain - 0.5) * 0.011;
 
     gl_FragColor = vec4(col, 1.0);
   }
 `;
 
 export const PALETTE_VEC3: [number, number, number][] = [
-  [0.95, 0.97, 1.0],
+  [0.96, 0.98, 1.0],
   [1.0, 0.66, 0.32],
   [0.36, 0.86, 1.0],
   [0.63, 0.5, 1.0],
-  [0.26, 0.36, 0.56],
+  [0.44, 0.64, 0.88],
   [1.0, 0.45, 0.33],
 ];
 
-export const CSS_PALETTE = ['#f2f6ff', '#ffa851', '#5cdcff', '#a084ff', '#4b5f8a', '#ff7359'];
+export const CSS_PALETTE = ['#f2f6ff', '#ffa851', '#5cdcff', '#a084ff', '#7fa8d6', '#ff7359'];
