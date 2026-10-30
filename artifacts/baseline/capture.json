@@ -1,0 +1,34 @@
+{
+  "capturedAt": "2026-10-29T13:41:27.871Z",
+  "base": "http://localhost:4173/",
+  "viewports": [
+    {
+      "name": "desktop-1440x900",
+      "width": 1440,
+      "height": 900,
+      "file": "artifacts\\baseline\\desktop-1440x900.png",
+      "errors": []
+    },
+    {
+      "name": "laptop-1280x800",
+      "width": 1280,
+      "height": 800,
+      "file": "artifacts\\baseline\\laptop-1280x800.png",
+      "errors": []
+    },
+    {
+      "name": "tablet-768x1024",
+      "width": 768,
+      "height": 1024,
+      "file": "artifacts\\baseline\\tablet-768x1024.png",
+      "errors": []
+    },
+    {
+      "name": "mobile-390x844",
+      "width": 390,
+      "height": 844,
+      "file": "artifacts\\baseline\\mobile-390x844.png",
+      "errors": []
+    }
+  ]
+}

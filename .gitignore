@@ -11,3 +11,9 @@ coverage/
 playwright-report/
 test-results/
 scripts/tmp-*.json
+
+.vercel/
+.vercel-verify-baseline.log
+
+# throwaway working iterations — only before/after evidence is committed
+artifacts/iter-*/
