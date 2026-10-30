@@ -268,19 +268,29 @@ export function stepWorld(world: World, dt: number, hooks: StepHooks = {}): void
     field.vx[i] = vx;
     field.vy[i] = vy;
 
-    // Slingshot detection: a fast outward trajectory in the neighbourhood of a
-    // massive body that has not been counted before.
-    if (!(field.flags[i] & 1) && speed2 > 170 * 170) {
+    // Slingshot detection, two phases so a stable orbiter never counts:
+    //   armed  — the particle sweeps inward toward a massive body (flag bit 2);
+    //   counted — after arming, it leaves fast on an outbound trajectory.
+    // A circular orbit has near-zero radial velocity throughout, so it never
+    // arms; only a genuine close-approach flyby is counted (flag bit 1).
+    if (!(field.flags[i] & 1) && bodies.length > 0) {
+      const speed = Math.sqrt(speed2);
       for (let bi = 0; bi < bodies.length; bi++) {
         const body = bodies[bi];
         if (body.mass < 400) continue;
         const dx = x - body.x;
         const dy = y - body.y;
-        const d = Math.sqrt(dx * dx + dy * dy);
-        if (d > 180 && d < 900 && dx * vx + dy * vy > 0) {
+        const d2body = dx * dx + dy * dy;
+        if (d2body > 900 * 900) continue;
+        const d = Math.sqrt(d2body);
+        if (d < 120) continue; // deep captures and merges are not slingshots
+        const radial = (dx * vx + dy * vy) / d; // >0 outbound, <0 inbound
+        if (radial < -20 && speed > 120) {
+          field.flags[i] |= 2;
+        } else if ((field.flags[i] & 2) && radial > 20 && speed > 170 && d > 260) {
           field.flags[i] |= 1;
           world.stats.slingshots += 1;
-          hooks.onSlingshot?.(x, y, Math.sqrt(speed2));
+          hooks.onSlingshot?.(x, y, speed);
           break;
         }
       }

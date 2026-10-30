@@ -7,6 +7,7 @@ import {
 } from './physics';
 import { addBody, addShockwave, createWorld, eventHorizon, PALETTE } from './world';
 import { addParticle } from './particles';
+import { loadScenario } from './scenarios';
 import type { World } from './types';
 
 function world(capacity = 400): World {
@@ -175,13 +176,56 @@ describe('stellar collapse', () => {
 });
 
 describe('slingshot detection', () => {
-  it('flags a fast particle leaving a massive body', () => {
+  it('counts a genuine inbound-to-outbound flyby exactly once', () => {
     const w = world();
     addBody(w, 'star', 0, 0, { mass: 2000, radius: 26 });
-    addParticle(w.particles, { x: 250, y: 0, vx: 200, vy: 0, life: 30, size: 2, pal: PALETTE.white });
+    // Fast hyperbolic flyby: inbound at (−800, 150), swings past, exits outbound.
+    addParticle(w.particles, {
+      x: -800,
+      y: 150,
+      vx: 380,
+      vy: 0,
+      life: 30,
+      size: 2,
+      pal: PALETTE.white,
+    });
     const onSlingshot = vi.fn();
-    stepWorld(w, 1 / 60, { onSlingshot });
-    expect(w.stats.slingshots).toBeGreaterThan(0);
-    expect(onSlingshot).toHaveBeenCalled();
+    for (let i = 0; i < 300; i++) stepWorld(w, 1 / 60, { onSlingshot });
+    expect(w.stats.slingshots).toBe(1);
+    expect(onSlingshot).toHaveBeenCalledTimes(1);
+  });
+
+  it('never counts a stable circular orbiter (two-phase guard)', () => {
+    const w = world();
+    addBody(w, 'star', 0, 0, { mass: 2000, radius: 26 });
+    // Tight, fast orbit: speed 131 u/s clears the >120 arm gate, so only the
+    // radial-velocity guard prevents a false positive here.
+    const radius = 350;
+    const speed = circularOrbitSpeed(2000, radius, w.params.gravity);
+    expect(speed).toBeGreaterThan(120);
+    addParticle(w.particles, {
+      x: radius,
+      y: 0,
+      vx: 0,
+      vy: speed,
+      life: 60,
+      size: 2,
+      pal: PALETTE.white,
+    });
+    for (let i = 0; i < 1080; i++) stepWorld(w, 1 / 60); // ≈ one full revolution
+    expect(w.stats.slingshots).toBe(0);
+    // The orbit itself must still be healthy after the run.
+    const r = Math.hypot(w.particles.x[0], w.particles.y[0]);
+    expect(r).toBeGreaterThan(radius * 0.75);
+    expect(r).toBeLessThan(radius * 1.25);
+  });
+
+  it('does not fire early on the Prime Field scenario', () => {
+    // Regression: the previous single-phase detector reported a slingshot at
+    // T+0.9s on load, when disc particles merely swept inward.
+    const w = createWorld(12345, 6000);
+    loadScenario(w, 'prime', 2500);
+    for (let i = 0; i < 360; i++) stepWorld(w, 1 / 60); // six simulated seconds
+    expect(w.stats.slingshots).toBe(0);
   });
 });

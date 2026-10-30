@@ -6,7 +6,8 @@ import { addParticle } from './core/particles';
 import { circularOrbitSpeed, stepWorld, type StepHooks } from './core/physics';
 import { applyExperiment, experimentToJSON, serializeExperiment } from './core/serialize';
 import { findScenario, loadScenario, SCENARIOS } from './core/scenarios';
-import type { Body, BodyKind, QualityLevel, ToolId, World } from './core/types';
+import { stepQuality } from './core/types';
+import type { Body, BodyKind, QualityLevel, RenderQuality, ToolId, World } from './core/types';
 import {
   addBody,
   createWorld,
@@ -21,7 +22,7 @@ import { Interaction } from './input/interaction';
 import { CameraRig } from './render/camera';
 import { UniverseRenderer, type ToolPreview } from './render/renderer';
 import { AudioEngine } from './audio/audio';
-import { PerfMonitor } from './perf';
+import { AdaptiveQuality, PerfMonitor, type PerfSnapshot } from './perf';
 import { formatClock, formatNumber } from './ui/dom';
 import {
   UI,
@@ -77,7 +78,11 @@ export class App implements UIActions, InteractionHost {
 
   private ui: UI | null = null;
   private prefs: Prefs;
+  /** User preference; 'auto' lets the adaptive controller pick the tier. */
   private quality: QualityLevel;
+  /** Concrete tier currently handed to the renderer (never 'auto'). */
+  private effectiveQuality: RenderQuality;
+  private readonly adaptive = new AdaptiveQuality();
   private tool: ToolId = 'gravity';
   private selectedId: number | null = null;
   private hoveredId: number | null = null;
@@ -111,6 +116,7 @@ export class App implements UIActions, InteractionHost {
       window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     this.prefs = loadPrefs();
     this.quality = this.prefs.quality;
+    this.effectiveQuality = this.quality === 'auto' ? startingTier() : this.quality;
     this.labelsVisible = this.prefs.labels;
     this.perfVisible = this.prefs.showPerf;
     ensureSamples();
@@ -119,7 +125,7 @@ export class App implements UIActions, InteractionHost {
     this.world = createWorld(20_260_925);
     this.world.params.trailLength = this.trailSetting();
     this.renderer = new UniverseRenderer(canvas);
-    this.renderer.setQuality(this.quality);
+    this.renderer.setQuality(this.effectiveQuality);
     this.camera = new CameraRig(this.renderer.camera);
     this.resize();
 
@@ -138,6 +144,7 @@ export class App implements UIActions, InteractionHost {
           1.2,
         );
         if (survivor.kind === 'blackhole') this.playAbsorb();
+        else this.audio.merge();
       },
       onBlackHoleAbsorb: (hole, count) => {
         this.events.push(
@@ -163,8 +170,8 @@ export class App implements UIActions, InteractionHost {
         this.renderer.flash(0.45);
         this.ui?.flashHint('Shockwave crossing the field — watch the matter react.', 6000);
       },
-      onSlingshot: () => {
-        /* recorded in world.stats; surfaced as a discovery */
+      onSlingshot: (_x, _y, speed) => {
+        this.audio.slingshot(speed);
       },
     };
 
@@ -331,12 +338,15 @@ export class App implements UIActions, InteractionHost {
     this.perf.update(dt);
     this.visualTime += dt;
 
+    const physicsStart = performance.now();
     const steps = this.clock.advance(dt, this.simulationStep);
+    const physicsMs = performance.now() - physicsStart;
     if (steps > 0 && this.activeKeyframe !== null) this.activeKeyframe = null;
 
     this.camera.update(dt);
     this.timeline.maybeCapture(this.world);
 
+    const renderStart = performance.now();
     this.renderer.update(this.world, {
       selectedId: this.selectedId,
       hoveredId: this.hoveredId,
@@ -345,6 +355,13 @@ export class App implements UIActions, InteractionHost {
       trailLength: this.world.params.trailLength,
     });
     this.renderer.render();
+    this.perf.recordSections(physicsMs, performance.now() - renderStart);
+
+    // Adaptive tier control (rendering-only; never touches world state).
+    if (this.quality === 'auto') {
+      const step = this.adaptive.nextFrame(dt * 1000, nowMs);
+      if (step) this.stepEffectiveQuality(step === 'up' ? 1 : -1);
+    }
 
     if (nowMs - this.lastSync > 110) {
       this.lastSync = nowMs;
@@ -372,10 +389,11 @@ export class App implements UIActions, InteractionHost {
   };
 
   private autoQualityHint(): void {
+    if (this.quality === 'auto') return; // the controller self-adjusts; no toast needed
     if (this.qualityHinted || this.perf.fps === 0) return;
     if (this.perf.fps < 42 && this.quality !== 'performance' && this.world.time > 6) {
       this.qualityHinted = true;
-      this.ui?.toast('Frame rate is limited. Try PERFORMANCE in the quality menu.', 'warn');
+      this.ui?.toast('Frame rate is limited. Try PERFORMANCE (or AUTO) in the quality menu.', 'warn');
     }
   }
 
@@ -389,8 +407,8 @@ export class App implements UIActions, InteractionHost {
   // ------------------------------------------------------------------ scenario
 
   private targetParticles(): number {
-    if (this.quality === 'cinematic') return 10_500;
-    if (this.quality === 'performance') return 4200;
+    // Simulation density is quality-independent: quality is rendering-only,
+    // so the same universe evolves regardless of tier (see DECISIONS.md D5/D6).
     return 7800;
   }
 
@@ -438,6 +456,7 @@ export class App implements UIActions, InteractionHost {
     this.tool = id;
     this.canvas.style.cursor = toolById(id).cursor;
     this.preview = null;
+    this.audio.tick();
     this.ui?.flashHint(toolById(id).hint, 6000);
     this.syncUi();
   }
@@ -802,15 +821,35 @@ export class App implements UIActions, InteractionHost {
     this.quality = quality;
     this.prefs.quality = quality;
     this.persistPrefs();
-    this.renderer.setQuality(quality);
-    this.resize();
-    if (quality === 'performance' && this.world.particles.count > 6000) {
-      this.history.record('Performance trim', this.world);
-      this.world.particles.count = 6000;
-      this.ui?.toast('Performance mode: matter trimmed to 6,000 particles.', 'warn');
+    if (quality === 'auto') {
+      // Re-baseline the controller; it climbs or drops from hardware reality.
+      this.adaptive.reset();
+      this.effectiveQuality = startingTier();
+    } else {
+      this.effectiveQuality = quality;
     }
-    this.ui?.toast(`Quality: ${quality}`, 'info');
+    this.applyEffectiveQuality();
+    this.ui?.toast(
+      `Quality: ${quality}${quality === 'auto' ? ` (now ${this.effectiveQuality})` : ''}`,
+      'info',
+    );
     this.syncUi();
+  }
+
+  /** Moves the effective tier one rung (adaptive controller callback). */
+  private stepEffectiveQuality(direction: 1 | -1): void {
+    const next = stepQuality(this.effectiveQuality, direction);
+    if (!next || next === this.effectiveQuality) return;
+    this.effectiveQuality = next;
+    this.applyEffectiveQuality();
+    this.ui?.toast(`Auto quality → ${next}`, 'info');
+  }
+
+  private applyEffectiveQuality(): void {
+    // Rendering-only: the particle field and physics state are never touched
+    // here, so switching tiers cannot alter simulation results.
+    this.renderer.setQuality(this.effectiveQuality);
+    this.resize();
   }
 
   setMuted(muted: boolean): void {
@@ -1050,6 +1089,7 @@ export class App implements UIActions, InteractionHost {
       bodyCount: this.world.bodies.length,
       fps: this.perf.fps,
       frameMs: this.perf.frameMs,
+      frameP95: this.perf.percentile(0.95),
       drawCalls: this.renderer.diagnostics().calls,
       perfVisible: this.perfVisible,
       labelsVisible: this.labelsVisible,
@@ -1060,6 +1100,37 @@ export class App implements UIActions, InteractionHost {
     };
     this.ui.sync(state);
     this.updateLabels();
+  }
+
+  /** Read-only diagnostics for the benchmark harness and debugging. */
+  perfStats(): PerfSnapshot & {
+    quality: QualityLevel;
+    effectiveQuality: RenderQuality;
+    particles: number;
+    bodies: number;
+    renderer: string;
+  } {
+    return {
+      ...this.perf.snapshot(),
+      quality: this.quality,
+      effectiveQuality: this.effectiveQuality,
+      particles: this.world.particles.count,
+      bodies: this.world.bodies.length,
+      renderer: this.rendererString(),
+    };
+  }
+
+  private rendererString(): string {
+    try {
+      const gl =
+        (this.canvas.getContext('webgl2') as WebGL2RenderingContext | null) ??
+        (this.canvas.getContext('webgl') as WebGLRenderingContext | null);
+      if (!gl) return 'unknown';
+      const dbg = gl.getExtension('WEBGL_debug_renderer_info');
+      return String(dbg ? gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER));
+    } catch {
+      return 'unknown';
+    }
   }
 
   private summarise(body: Body): BodySummary {
@@ -1119,6 +1190,14 @@ export class App implements UIActions, InteractionHost {
 
 function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
+}
+
+/** Starting tier for 'auto' on this hardware; the controller refines it. */
+function startingTier(): RenderQuality {
+  if (typeof navigator === 'undefined') return 'balanced';
+  const cores = navigator.hardwareConcurrency ?? 8;
+  const memory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory ?? 8;
+  return cores <= 4 || memory <= 4 ? 'performance' : 'balanced';
 }
 
 function slugify(name: string): string {

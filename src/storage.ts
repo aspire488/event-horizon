@@ -40,19 +40,13 @@ export interface Prefs {
 export const DEFAULT_PREFS: Prefs = {
   volume: 0.5,
   muted: false,
-  quality: 'balanced',
+  // 'auto' lets the adaptive controller pick the rendering tier at runtime
+  // (weak hardware is detected in app.startingTier, then refined by frame time).
+  quality: 'auto',
   trailLength: 0.55,
   showPerf: false,
   labels: true,
 };
-
-/** Weaker hardware starts in Performance mode instead of stuttering first. */
-function defaultQuality(): QualityLevel {
-  if (typeof navigator === 'undefined') return DEFAULT_PREFS.quality;
-  const cores = navigator.hardwareConcurrency ?? 8;
-  const memory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory ?? 8;
-  return cores <= 4 || memory <= 4 ? 'performance' : DEFAULT_PREFS.quality;
-}
 
 function readStore(): StoredSave[] {
   try {
@@ -211,10 +205,13 @@ export function ensureSamples(): void {
 export function loadPrefs(): Prefs {
   try {
     const raw = localStorage.getItem(PREFS_KEY);
-    if (!raw) return { ...DEFAULT_PREFS, quality: defaultQuality() };
+    if (!raw) return { ...DEFAULT_PREFS };
     const parsed = JSON.parse(raw) as Partial<Prefs>;
     const quality: QualityLevel =
-      parsed.quality === 'cinematic' || parsed.quality === 'performance' || parsed.quality === 'balanced'
+      parsed.quality === 'cinematic' ||
+      parsed.quality === 'performance' ||
+      parsed.quality === 'balanced' ||
+      parsed.quality === 'auto'
         ? parsed.quality
         : DEFAULT_PREFS.quality;
     return {

@@ -74,6 +74,8 @@ export interface SimStats {
 export interface ParticleField {
   capacity: number;
   count: number;
+  /** Round-robin cursor used only when the field is saturated (deterministic). */
+  recycle: number;
   x: Float32Array;
   y: Float32Array;
   z: Float32Array;
@@ -114,7 +116,25 @@ export interface World {
 
 export type ToolId = 'observe' | 'gravity' | 'blackhole' | 'supernova' | 'repel' | 'paint' | 'orbit';
 
-export type QualityLevel = 'cinematic' | 'balanced' | 'performance';
+export type QualityLevel = 'auto' | 'cinematic' | 'balanced' | 'performance';
+
+/** Concrete rendering tiers. `'auto'` is resolved to one of these at runtime. */
+export type RenderQuality = Exclude<QualityLevel, 'auto'>;
+
+/** Tier ladder ordered weakest → strongest. */
+export const RENDER_QUALITIES: readonly RenderQuality[] = ['performance', 'balanced', 'cinematic'];
+
+export function isRenderQuality(value: QualityLevel): value is RenderQuality {
+  return value !== 'auto';
+}
+
+/** Steps one rung up/down the ladder; returns null at the ends. */
+export function stepQuality(current: RenderQuality, direction: 1 | -1): RenderQuality | null {
+  const index = RENDER_QUALITIES.indexOf(current);
+  const next = index + direction;
+  if (index < 0 || next < 0 || next >= RENDER_QUALITIES.length) return null;
+  return RENDER_QUALITIES[next];
+}
 
 export type EventKind =
   | 'blackhole'

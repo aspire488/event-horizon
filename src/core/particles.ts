@@ -8,6 +8,7 @@ export function createParticleField(capacity: number): ParticleField {
   return {
     capacity,
     count: 0,
+    recycle: 0,
     x: new Float32Array(capacity),
     y: new Float32Array(capacity),
     z: new Float32Array(capacity),
@@ -37,14 +38,16 @@ export interface ParticleSpawn {
   type?: number;
 }
 
-/** Adds a particle, recycling the oldest slot when the field is full. */
+/** Adds a particle, recycling slots round-robin when the field is full.
+ * The recycle cursor is deterministic (no Math.random), so a saturated field
+ * evolves identically for identical seeds. */
 export function addParticle(field: ParticleField, p: ParticleSpawn): number {
   let index: number;
   if (field.count < field.capacity) {
     index = field.count++;
   } else {
-    // Recycle a pseudo-random slot; keeps emission cheap and distribution fair.
-    index = Math.floor(Math.random() * field.capacity);
+    index = field.recycle % field.capacity;
+    field.recycle = (field.recycle + 1) % field.capacity;
   }
   writeParticle(field, index, p);
   return index;
