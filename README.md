@@ -93,6 +93,20 @@ The atlas also includes **Prime Field**, a spiral galaxy with a binary companion
 - **Hear the universe.** Procedural audio responds to the simulation with ambient layers and event sounds. Mute it whenever you like.
 - **Choose your visual quality.** Cinematic, Balanced, Performance, and adaptive Auto quality options tune rendering without changing the underlying particle simulation.
 
+## Meet Orbito
+
+<p align="center">
+  <img src="artifacts/orbito/expressions.png" width="100%" alt="Orbito, a small ringed creature with glowing eyes, shown in ten expressions: idle, curious, excited, surprised, confused, thinking, sleepy, amused, concerned and celebrating.">
+</p>
+
+A small ringed creature lives in the bottom-left corner. Orbito watches the same events as the discovery feed: black holes you open, supernovas you detonate, stars that collapse on their own, mergers, bodies swallowed by a black hole, matter crossing a horizon, slingshots, discoveries, world changes, pause and resume. It reacts with one of ten expressions and, now and then, an opinion. It never repeats a line back to back, keeps quiet while you're paused, and goes to sleep if you leave it alone.
+
+Click Orbito (or Tab to it and press Enter) to talk. Its answers come from the live universe: what's happening, why something was flung away, what doubling the selected body's mass would do, how black holes, mergers, orbits and shockwaves work here, and what to try next. The first time you pick each tool, it explains what that tool really does. When a question is beyond what the universe reports, it says so.
+
+- **Voice, optional and off by default.** `VOICE` speaks through your browser's own speech engine, choosing the lightest, youngest-sounding voice available (Microsoft Ana in Edge, then natural or Google voices, Samantha on Apple devices, Zira on Windows) and steering away from deep narrator voices. It follows `M` mute and the volume slider, never talks over itself, and stops when you close the panel. Available voices depend on your browser and operating system.
+- **Quiet when you want.** `QUIET` limits unprompted remarks to discoveries. `Esc` closes the conversation, `H` hides Orbito with the rest of the interface, and typing to Orbito never triggers simulation shortcuts.
+- **No network, no keys.** Conversation runs on a local, deterministic engine. Orbito remembers only a few counters and its two settings, in your browser.
+
 ## Built as an instrument
 
 Event Horizon combines a deterministic simulation core with a real-time Three.js/WebGL renderer. The visual language is designed around the physics: a black hole's photon ring and limb-darkened photosphere, Doppler-shifted accretion-disc lighting, stellar diffraction spikes, additive particle trails, shockwaves, and a world-anchored graticule that scales as you navigate.
@@ -100,7 +114,8 @@ Event Horizon combines a deterministic simulation core with a real-time Three.js
 The engineering is just as deliberate:
 
 - **Fixed-step physics:** a 1/60-second simulation step keeps physics independent of display frame rate.
-- **Stable numerical behavior:** semi-implicit integration, Newtonian gravity with Plummer softening, and bounded acceleration and speed.
+- **Stable numerical behavior:** semi-implicit (symplectic) Euler integration and Newtonian gravity with Plummer softening; matter is additionally bounded in acceleration and speed. A circular orbit drifts by about 0.001% in energy over ten revolutions.
+- **Conservation where it counts:** bodies pull on each other in equal and opposite pairs, mergers keep total momentum and land at the pair's centre of mass, and a black hole takes on the momentum of the matter it swallows. Each of these is covered by a regression test.
 - **Deterministic particle recycling:** particle storage is bounded, with a 24,000-particle ceiling.
 - **Two-phase slingshot detection:** a flyby is armed on inbound motion and counted only after outbound escape, avoiding false discoveries during scenario loading.
 - **Rendering-only quality tiers:** visual quality changes do not trim or otherwise mutate the simulation's target particle population.
@@ -108,6 +123,16 @@ The engineering is just as deliberate:
 - **Event-driven effects:** merges, captures, stellar collapse, supernova shockwaves, and other simulation events drive visual and audio feedback.
 
 The black-hole and relativistic-looking effects are visual approximations layered over the simulation; this is an interactive sandbox, not a general-purpose relativistic astrophysics solver.
+
+<details>
+<summary><b>What is modelled, and what is approximated</b></summary>
+<br>
+
+- **Modelled:** Newtonian body–body gravity, particle motion in the bodies' field, inelastic mergers that conserve momentum, and circular-orbit launch speeds of √(GM/r).
+- **Simplified:** particles are tracers that feel bodies but don't pull on them; each grain a black hole swallows adds a nominal 2.5 mass units; a black hole's horizon is set by its drawn radius, not by its mass; gravity wells and repulsors act only inside their influence radius.
+- **Artistic:** accretion drag near a horizon (so matter spirals in instead of orbiting forever), the shockwave's outward push, stellar lifetimes, and every relativistic-looking visual.
+
+</details>
 
 <details>
 <summary><b>Architecture and source layout</b></summary>
@@ -121,6 +146,7 @@ src/render/  Three.js renderer, shaders, camera
 src/input/   pointer, mouse, and touch interactions
 src/ui/      panels, controls, help, notifications
 src/audio/   procedural Web Audio
+src/orbito/  companion: brain (moods, reactions), knowledge (context, answers), voice, view
 src/app.ts   application orchestration
 ```
 
@@ -159,6 +185,7 @@ npm run preview
 | `F` / `Delete` / `R` | Focus selection / delete selection / reset world |
 | `M` / `P` / `L` / `H` | Mute / performance display / labels / hide interface |
 | `?` | Open the help overlay |
+| `Tab` to Orbito, then `Enter` / `Esc` | Open / close the conversation with Orbito |
 
 On touch devices, tap and drag to use tools, use two fingers to pan, and pinch to zoom. The panel toggle keeps controls reachable on smaller screens.
 
@@ -180,20 +207,16 @@ These measurements were display-refresh-bound at 144 Hz; they do not establish m
 
 ## Tests and release verification
 
-The latest release verification recorded:
+This release (Orbito, event feed and conservation fixes) recorded:
 
 | Check | Result |
 | --- | ---: |
-| Unit tests (Vitest) | **65/65 passed** |
+| Unit tests (Vitest) | **105/105 passed** |
 | Local browser smoke | **18/18 passed** |
-| Production browser smoke | **18/18 passed** |
-| QA smoke | **6/6 passed** |
-| Seeded campaign personas | **10/10 passed** |
-| Campaign fuzz cases | **100/100 passed** |
-| User acceptance checks | **12/12 passed** |
-| Extended session | **600.8 seconds** |
+| Orbito browser checks (Chromium, Firefox, WebKit) | **16/16 passed in each** |
+| `npm audit` | **0 vulnerabilities** |
 
-Typecheck and production build completed cleanly. The extended acceptance session reported no console errors, uncaught exceptions, or failed network requests.
+Typecheck and production build completed cleanly. The previous release's wider campaign (QA smoke 6/6, 10/10 seeded personas, 100/100 fuzz cases, 12/12 user acceptance checks, a 600.8-second extended session) was not rerun for this release.
 
 Run the core checks locally:
 
@@ -201,6 +224,10 @@ Run the core checks locally:
 npm run typecheck
 npm test
 npm run build
+npm run preview            # then, in another terminal:
+npm run smoke
+node scripts/orbito-check.mjs                          # Chrome
+ORBITO_BROWSER=firefox node scripts/orbito-check.mjs   # or webkit; needs `npx playwright-core install firefox webkit`
 ```
 
 <details>
@@ -209,7 +236,7 @@ npm run build
 
 The release campaign exercised seeded scenarios, tool interactions, quality switching, save/restore, responsive layouts, focus behavior, and an extended session. The campaign is seeded and finite, not an exhaustive proof of correctness.
 
-The RTX 3050 benchmark is refresh-bound at the tested resolution; higher-resolution GPU-bound benchmarking remains useful future work. Automated audio checks validate code paths, not subjective sound quality through physical speakers. Touch emulation does not replace testing on physical touch hardware. Browser zoom edge cases and WebGL context-loss recovery have not been fully verified.
+The RTX 3050 benchmark is refresh-bound at the tested resolution; higher-resolution GPU-bound benchmarking remains useful future work. Orbito's voice was checked through physical speakers in Chrome on Windows: its median pitch rose from 111 Hz (the deep default voice it used to pick) to 232 Hz. Edge's online natural voices are not exposed to automated browsers, so the preferred Edge voice was not measured. Other audio checks validate code paths, not subjective sound quality. Touch emulation does not replace testing on physical touch hardware. Browser zoom edge cases and WebGL context-loss recovery have not been fully verified.
 
 Detailed benchmark methodology and defect history are retained in `docs/BENCHMARKS.md` and `docs/DEFECTS.md`.
 
