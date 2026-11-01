@@ -229,3 +229,67 @@ describe('slingshot detection', () => {
     expect(w.stats.slingshots).toBe(0);
   });
 });
+
+describe('conservation (regression)', () => {
+  const momentum = (w: World) =>
+    w.bodies.reduce((p, b) => [p[0] + b.mass * b.vx, p[1] + b.mass * b.vy], [0, 0]);
+
+  it('places a merged body at the centre of mass', () => {
+    const w = world();
+    addBody(w, 'star', 0, 0, { mass: 1000, radius: 25 });
+    addBody(w, 'star', 30, 0, { mass: 1000, radius: 25 });
+    stepWorld(w, 1 / 60);
+    expect(w.bodies).toHaveLength(1);
+    // Was 25.27 when the survivor slid only 15% toward its partner.
+    expect(w.bodies[0].x).toBeCloseTo(15, 1);
+  });
+
+  it('keeps a massless repulsor pair finite when they touch', () => {
+    const w = world();
+    addBody(w, 'repulsor', 0, 0, { mass: 0 });
+    addBody(w, 'repulsor', 2, 0, { mass: 0 });
+    stepWorld(w, 1 / 60);
+    expect(w.bodies).toHaveLength(1);
+    const b = w.bodies[0];
+    expect([b.x, b.y, b.vx, b.vy].every(Number.isFinite)).toBe(true);
+  });
+
+  it('conserves momentum when a moving black hole accretes resting matter', () => {
+    const w = world(2000);
+    const hole = addBody(w, 'blackhole', 0, 0, { mass: 3000, radius: 15, vx: 100 });
+    for (let i = 0; i < 400; i++) {
+      addParticle(w.particles, {
+        x: (i % 20) - 10, y: Math.floor(i / 20) - 10, z: 0, vx: 0, vy: 0,
+        life: 30, size: 2, pal: 0, seed: 0, type: 0,
+      });
+    }
+    stepWorld(w, 1 / 60);
+    expect(hole.mass).toBeCloseTo(4000, 5);
+    // Was 400,000: mass arrived with no momentum and the hole kept its speed.
+    expect(hole.mass * hole.vx).toBeCloseTo(300_000, 0);
+  });
+
+  it('conserves total body momentum through a chaotic run with mergers', () => {
+    const w = createWorld(5, 4000);
+    loadScenario(w, 'chaos', 0);
+    // Isolate the body system: accreted matter legitimately brings its own
+    // momentum in, so remove every particle.
+    w.particles.count = 0;
+    const p0 = momentum(w);
+    let merges = 0;
+    for (let i = 0; i < 3600; i++) stepWorld(w, 1 / 60, { onMerge: () => merges++ });
+    const p1 = momentum(w);
+    expect(merges).toBeGreaterThan(0);
+    expect(Math.hypot(p1[0] - p0[0], p1[1] - p0[1])).toBeLessThan(1e-6 * Math.max(1, Math.hypot(p0[0], p0[1])) + 1e-3);
+  });
+
+  it('stays deterministic: identical seeds give identical universes', () => {
+    const run = () => {
+      const w = createWorld(9, 4000);
+      loadScenario(w, 'chaos', 1500);
+      for (let i = 0; i < 600; i++) stepWorld(w, 1 / 60);
+      return `${w.particles.count}|${w.bodies.map((b) => `${b.x},${b.y},${b.mass}`).join(';')}`;
+    };
+    expect(run()).toBe(run());
+  });
+});

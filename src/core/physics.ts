@@ -4,6 +4,8 @@ import type { Body, World } from './types';
 
 export const MAX_ACCEL = 1500;
 export const MAX_SPEED = 900;
+/** Nominal mass a particle delivers to a black hole. */
+export const ACCRETED_MASS = 2.5;
 
 export interface StepHooks {
   onMerge?: (survivor: Body, consumed: Body) => void;
@@ -121,8 +123,15 @@ export function stepWorld(world: World, dt: number, hooks: StepHooks = {}): void
       const consumedIndex = aSurvives ? j : i;
 
       const totalMass = survivor.mass + consumed.mass;
-      survivor.vx = (survivor.vx * survivor.mass + consumed.vx * consumed.mass) / totalMass;
-      survivor.vy = (survivor.vy * survivor.mass + consumed.vy * consumed.mass) / totalMass;
+      // The merged body sits at the pair's centre of mass, so a merger never
+      // teleports the system's barycentre, and momentum is conserved. Massless
+      // pairs (two repulsors) have no centre of mass: the survivor stays put.
+      if (totalMass > 0) {
+        survivor.x = (survivor.x * survivor.mass + consumed.x * consumed.mass) / totalMass;
+        survivor.y = (survivor.y * survivor.mass + consumed.y * consumed.mass) / totalMass;
+        survivor.vx = (survivor.vx * survivor.mass + consumed.vx * consumed.mass) / totalMass;
+        survivor.vy = (survivor.vy * survivor.mass + consumed.vy * consumed.mass) / totalMass;
+      }
       survivor.mass = totalMass;
       if (survivor.kind !== 'blackhole') {
         survivor.radius = Math.cbrt(
@@ -131,8 +140,6 @@ export function stepWorld(world: World, dt: number, hooks: StepHooks = {}): void
       } else {
         survivor.radius = Math.min(52, survivor.radius + consumed.radius * 0.06);
       }
-      survivor.x += (consumed.x - survivor.x) * 0.15;
-      survivor.y += (consumed.y - survivor.y) * 0.15;
 
       bodies.splice(consumedIndex, 1);
       world.stats.merged += 1;
@@ -217,11 +224,20 @@ export function stepWorld(world: World, dt: number, hooks: StepHooks = {}): void
       world.stats.absorbed += 1;
       world.stats.absorbedByBlackHole += 1;
       absorbedByHole += 1;
-      if (absorbHole && absorbHole.mass < 26000) absorbHole.mass += 2.5;
+      // Each grain carries a nominal 2.5 mass units in with its own velocity,
+      // so accretion conserves momentum instead of inventing it.
+      if (absorbHole && absorbHole.mass < 26000) {
+        const m = absorbHole.mass + ACCRETED_MASS;
+        absorbHole.vx = (absorbHole.vx * absorbHole.mass + vx * ACCRETED_MASS) / m;
+        absorbHole.vy = (absorbHole.vy * absorbHole.mass + vy * ACCRETED_MASS) / m;
+        absorbHole.mass = m;
+      }
       continue;
     }
 
-    // Shockwave impulses (one impulse per particle per front).
+    // Shockwave push: an outward acceleration for every step the particle sits
+    // inside the 2×width band of the moving front (a fraction of a second);
+    // counted once per front.
     for (let wi = 0; wi < waves.length; wi++) {
       const w = waves[wi];
       const dx = x - w.x;
