@@ -31,3 +31,26 @@ describe('EventLog', () => {
     expect(log.events).toHaveLength(1);
   });
 });
+
+describe('EventLog after time moves backwards (rewind/undo)', () => {
+  it('does not silence a cooldown key until sim time catches up', () => {
+    const log = new EventLog();
+    expect(log.push('slingshot', 'late', 0, 0, 120, 'slingshot', 6)).not.toBeNull();
+    // Rewound to T+10: previously suppressed for ~110 s.
+    expect(log.push('slingshot', 'after rewind', 0, 0, 10, 'slingshot', 6)).not.toBeNull();
+    expect(log.push('slingshot', 'burst', 0, 0, 11, 'slingshot', 6)).toBeNull();
+  });
+
+  it('keeps notifying other listeners when one throws', () => {
+    const log = new EventLog();
+    const seen: string[] = [];
+    const quiet = vi.spyOn(console, 'error').mockImplementation(() => {});
+    log.subscribe(() => {
+      throw new Error('observer failure');
+    });
+    log.subscribe((e) => seen.push(e.text));
+    expect(() => log.push('merge', 'ok', 0, 0, 1)).not.toThrow();
+    expect(seen).toEqual(['ok']);
+    quiet.mockRestore();
+  });
+});

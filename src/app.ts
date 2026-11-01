@@ -22,6 +22,7 @@ import { Interaction } from './input/interaction';
 import { CameraRig } from './render/camera';
 import { UniverseRenderer, type ToolPreview } from './render/renderer';
 import { AudioEngine } from './audio/audio';
+import { Orbito } from './orbito/orbito';
 import { AdaptiveQuality, PerfMonitor, type PerfSnapshot } from './perf';
 import { formatClock, formatNumber } from './ui/dom';
 import {
@@ -77,6 +78,7 @@ export class App implements UIActions, InteractionHost {
   private stepHooks: StepHooks;
 
   private ui: UI | null = null;
+  private orbito: Orbito | null = null;
   private prefs: Prefs;
   /** User preference; 'auto' lets the adaptive controller pick the tier. */
   private quality: QualityLevel;
@@ -135,9 +137,10 @@ export class App implements UIActions, InteractionHost {
 
     this.stepHooks = {
       onMerge: (survivor, consumed) => {
+        const captured = survivor.kind === 'blackhole';
         this.events.push(
-          'merge',
-          `${consumed.label} merged into ${survivor.label}`,
+          captured ? 'capture' : 'merge',
+          captured ? `${survivor.label} swallowed ${consumed.label}` : `${consumed.label} merged into ${survivor.label}`,
           survivor.x,
           survivor.y,
           this.world.time,
@@ -165,7 +168,7 @@ export class App implements UIActions, InteractionHost {
       },
       onSupernova: (star) => {
         this.events.push(
-          'supernova',
+          'collapse',
           `${star.label} collapsed — shockwave released`,
           star.x,
           star.y,
@@ -175,8 +178,10 @@ export class App implements UIActions, InteractionHost {
         this.renderer.flash(0.45);
         this.ui?.flashHint('Shockwave crossing the field — watch the matter react.', 6000);
       },
-      onSlingshot: (_x, _y, speed) => {
+      onSlingshot: (x, y, speed) => {
         this.audio.slingshot(speed);
+        // One feed entry per burst: a single fling can count hundreds of grains.
+        this.events.push('slingshot', `Gravitational slingshot · ${Math.round(speed)} u/s`, x, y, this.world.time, 'slingshot', 6);
       },
     };
 
@@ -184,6 +189,14 @@ export class App implements UIActions, InteractionHost {
     this.ui = new UI(mount, this);
     this.interaction = new Interaction(canvas, this);
     this.events.onChange = () => this.ui?.invalidatePanel();
+    this.orbito = new Orbito(mount, {
+      world: () => this.world,
+      events: this.events,
+      // On narrow screens the Force Lab and Orbito would stack; one at a time.
+      onOpen: () => {
+        if (window.innerWidth <= 900) this.ui?.setPanelOpen(false);
+      },
+    });
     this.installListeners();
     this.canvas.style.cursor = toolById(this.tool).cursor;
     this.syncUi();
@@ -200,6 +213,7 @@ export class App implements UIActions, InteractionHost {
 
   dispose(): void {
     this.interaction.dispose();
+    this.orbito?.dispose();
     this.ui?.dispose();
     this.renderer.dispose();
   }
@@ -1109,6 +1123,7 @@ export class App implements UIActions, InteractionHost {
       archiveFull: this.store.size >= MAX_SAVES,
     };
     this.ui.sync(state);
+    this.orbito?.sync(state, this.ui.isCollapsed);
     this.updateLabels();
   }
 

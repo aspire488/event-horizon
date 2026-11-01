@@ -1,0 +1,423 @@
+/* ------------------------------------------------------------------ *
+ * Orbito — cosmic companion. Bottom-left, below the tool rail on
+ * desktop; above the tool strip on narrow screens. Expressions are
+ * driven by [data-mood] set from the brain, never random.
+ * ------------------------------------------------------------------ */
+
+.orbito {
+  position: absolute;
+  left: 14px;
+  bottom: 14px;
+  z-index: 27;
+  pointer-events: none;
+  color: var(--accent);
+}
+
+.orbito.orbito-hidden {
+  display: none;
+}
+
+.orbito-creature {
+  position: relative;
+  display: block;
+  width: 58px;
+  height: 58px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  cursor: pointer;
+  pointer-events: auto;
+  color: inherit;
+  transition: color 0.6s;
+}
+
+.orbito-creature:focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.orbito-creature svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  animation: orbito-float 4.2s ease-in-out infinite;
+}
+
+.orbito svg * {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 0.35s cubic-bezier(0.3, 1.5, 0.5, 1), opacity 0.35s;
+}
+
+.orbito .o-halo {
+  opacity: 0.55;
+  transition: opacity 0.6s;
+}
+.orbito .o-body {
+  stroke: currentColor;
+  stroke-opacity: 0.4;
+  stroke-width: 0.6;
+}
+.orbito .o-rim {
+  stroke: rgba(200, 240, 255, 0.35);
+  stroke-width: 1.2;
+  stroke-linecap: round;
+}
+.orbito .o-eye ellipse {
+  fill: #dcf8ff;
+  filter: drop-shadow(0 0 2px currentColor);
+}
+.orbito .o-glint {
+  fill: #fff;
+}
+.orbito .o-smile,
+.orbito .o-worry {
+  stroke: #dcf8ff;
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  opacity: 0;
+}
+.orbito .o-oh {
+  fill: #dcf8ff;
+  opacity: 0;
+  transform: scale(0.3);
+}
+.orbito .o-z {
+  fill: var(--label);
+  font: 9px var(--mono);
+  opacity: 0;
+}
+
+/* Orbital motes: a tilted ring, split front/back so they pass behind the body. */
+.orbito .o-orbit {
+  fill: currentColor;
+  transform-box: view-box;
+  transform-origin: 32px 33px;
+  transform: rotate(-16deg) scale(1, 0.34);
+}
+.orbito .o-ring {
+  fill: none;
+  stroke: currentColor;
+  stroke-opacity: 0.28;
+  stroke-width: 0.8;
+  vector-effect: non-scaling-stroke;
+}
+.orbito .o-spin {
+  transform-box: view-box;
+  transform-origin: 32px 32px;
+  animation: orbito-spin 7s linear infinite;
+}
+.orbito .o-orbit-front .o-spin {
+  animation-delay: -1.75s;
+}
+.orbito .o-tilt {
+  transform-box: view-box;
+  transform-origin: 32px 34px;
+}
+
+@keyframes orbito-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+@keyframes orbito-spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes orbito-bounce {
+  0%, 100% { transform: translateY(0) scale(1); }
+  40% { transform: translateY(-7px) scale(1.04, 0.97); }
+  60% { transform: translateY(-5px) scale(0.98, 1.03); }
+}
+@keyframes orbito-blink {
+  0%, 92%, 100% { transform: scaleY(1); }
+  95% { transform: scaleY(0.1); }
+}
+@keyframes orbito-z {
+  0% { opacity: 0; transform: translate(0, 4px); }
+  50% { opacity: 0.9; }
+  100% { opacity: 0; transform: translate(5px, -6px); }
+}
+
+/* Idle blinks; every other mood sets its own eye shape. */
+.orbito[data-mood='idle'] .o-eye { animation: orbito-blink 5.5s infinite; }
+
+.orbito[data-mood='curious'] .o-eye { transform: scale(1.15, 1.22); }
+.orbito[data-mood='curious'] .o-tilt { transform: translateY(-2px) rotate(6deg) scale(1.04); }
+.orbito[data-mood='curious'] .o-halo { opacity: 0.75; }
+
+.orbito[data-mood='excited'] svg { animation: orbito-bounce 0.7s ease-in-out infinite; }
+.orbito[data-mood='excited'] .o-eye { transform: scale(1.1, 1.2); }
+.orbito[data-mood='excited'] .o-smile { opacity: 1; }
+.orbito[data-mood='excited'] .o-halo { opacity: 1; }
+.orbito[data-mood='excited'] .o-spin { animation-duration: 2.2s; }
+
+.orbito[data-mood='surprised'] .o-eye { transform: scale(1.45); }
+.orbito[data-mood='surprised'] .o-glint { transform: scale(0.6); }
+.orbito[data-mood='surprised'] .o-oh { opacity: 1; transform: scale(1); }
+.orbito[data-mood='surprised'] .o-tilt { transform: translateY(-4px); }
+.orbito[data-mood='surprised'] .o-halo { opacity: 0.95; }
+
+.orbito[data-mood='confused'] .o-eye-l { transform: scale(1.25); }
+.orbito[data-mood='confused'] .o-eye-r { transform: scale(0.85, 0.45); }
+.orbito[data-mood='confused'] .o-tilt { transform: rotate(-12deg); }
+.orbito[data-mood='confused'] .o-worry { opacity: 0.7; }
+
+.orbito[data-mood='thinking'] .o-eye { transform: translate(1.5px, -2.5px) scale(0.9, 0.8); }
+.orbito[data-mood='thinking'] .o-spin { animation-duration: 1.6s; }
+.orbito[data-mood='thinking'] .o-tilt { transform: rotate(4deg); }
+
+.orbito[data-mood='sleepy'] { color: var(--violet); }
+.orbito[data-mood='sleepy'] svg { animation-duration: 8s; }
+.orbito[data-mood='sleepy'] .o-eye { transform: scale(1.05, 0.12); }
+.orbito[data-mood='sleepy'] .o-halo { opacity: 0.18; }
+.orbito[data-mood='sleepy'] .o-spin { animation-duration: 22s; }
+.orbito[data-mood='sleepy'] .o-z { animation: orbito-z 2.8s ease-in-out infinite; }
+
+.orbito[data-mood='amused'] .o-eye { transform: translateY(-0.5px) scale(1.1, 0.42); }
+.orbito[data-mood='amused'] .o-smile { opacity: 1; }
+.orbito[data-mood='amused'] .o-tilt { transform: rotate(7deg); }
+
+.orbito[data-mood='concerned'] { color: var(--amber); }
+.orbito[data-mood='concerned'] .o-eye { transform: translateY(1px) scale(0.95, 0.8); }
+.orbito[data-mood='concerned'] .o-worry { opacity: 1; }
+.orbito[data-mood='concerned'] .o-tilt { transform: translateX(-2px); }
+
+.orbito[data-mood='celebrating'] { color: var(--ok); }
+.orbito[data-mood='celebrating'] svg { animation: orbito-bounce 0.55s ease-in-out infinite; }
+.orbito[data-mood='celebrating'] .o-eye { transform: scale(1.15, 0.5); }
+.orbito[data-mood='celebrating'] .o-smile { opacity: 1; }
+.orbito[data-mood='celebrating'] .o-halo { opacity: 1; }
+.orbito[data-mood='celebrating'] .o-spin { animation-duration: 1.1s; }
+
+.orbito.orbito-speaking .o-oh {
+  opacity: 0.9;
+  animation: orbito-blink 0.32s infinite;
+}
+
+.orbito-badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--ok);
+  box-shadow: 0 0 8px var(--ok);
+}
+
+.orbito-bubble {
+  position: absolute;
+  left: 62px;
+  bottom: 52px;
+  width: max-content;
+  max-width: min(300px, calc(100vw - 92px));
+  padding: 8px 11px;
+  background: rgba(6, 10, 15, 0.96);
+  border: 1px solid var(--accent-edge);
+  border-radius: 2px;
+  color: var(--ink);
+  font-size: 10.5px;
+  line-height: 1.55;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.25s, transform 0.25s;
+  pointer-events: none;
+}
+.orbito-bubble.show {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.orbito-panel {
+  position: absolute;
+  left: 68px;
+  bottom: 58px;
+  width: 330px;
+  max-height: min(520px, calc(100vh - 140px));
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  border: 1px solid var(--line-strong);
+  border-radius: 2px;
+  overflow: hidden; /* children never spill over the controls below */
+  pointer-events: auto;
+  user-select: text;
+  -webkit-user-select: text;
+}
+.orbito-panel[hidden] {
+  display: none;
+}
+
+.orbito-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--line);
+}
+.orbito-title {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.orbito-name {
+  font-size: 10.5px;
+  letter-spacing: 0.24em;
+  color: var(--accent);
+}
+.orbito-role {
+  font-size: 8px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.orbito-tools {
+  display: flex;
+  gap: 4px;
+}
+.orbito-toggle,
+.orbito-close,
+.orbito-chip,
+.orbito-send {
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  color: var(--dim);
+  cursor: pointer;
+  font-size: 8px;
+  letter-spacing: 0.14em;
+}
+.orbito-toggle {
+  padding: 4px 6px;
+}
+.orbito-toggle[aria-pressed='true'] {
+  color: var(--accent);
+  border-color: var(--accent-edge);
+  background: var(--accent-fill);
+}
+.orbito-close {
+  width: 22px;
+  font-size: 13px;
+  line-height: 1;
+}
+.orbito-toggle:hover,
+.orbito-close:hover,
+.orbito-chip:hover,
+.orbito-send:hover {
+  color: var(--ink);
+  border-color: var(--line-strong);
+}
+
+.orbito-log {
+  flex: 1;
+  min-height: 90px;
+  overflow-y: auto;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  scrollbar-width: thin;
+}
+.orbito-log:focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: -2px;
+}
+.orbito-msg {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 10.5px;
+  line-height: 1.55;
+}
+.orbito-who {
+  font-size: 7.5px;
+  letter-spacing: 0.18em;
+  color: var(--faint);
+}
+.orbito-msg-orbito .orbito-text {
+  color: var(--ink);
+}
+.orbito-msg-you {
+  align-items: flex-end;
+  text-align: right;
+}
+.orbito-msg-you .orbito-text {
+  color: var(--label);
+}
+
+.orbito-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 6px 10px;
+  border-top: 1px solid var(--line-soft);
+}
+.orbito-chip {
+  padding: 4px 6px;
+  letter-spacing: 0.06em;
+  font-size: 8.5px;
+}
+
+.orbito-form {
+  display: flex;
+  gap: 6px;
+  padding: 8px 10px;
+  border-top: 1px solid var(--line);
+}
+.orbito-input {
+  flex: 1;
+  min-width: 0;
+  padding: 6px 8px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  font-size: 11px;
+}
+.orbito-input:focus {
+  border-color: var(--accent-edge);
+  outline: none;
+}
+.orbito-send {
+  padding: 0 10px;
+  color: var(--accent);
+  border-color: var(--accent-edge);
+}
+
+@media (max-width: 900px) {
+  .orbito {
+    left: 8px;
+    bottom: 130px;
+  }
+  .orbito-creature {
+    width: 44px;
+    height: 44px;
+  }
+  .orbito-bubble {
+    left: 0;
+    bottom: 50px;
+    max-width: calc(100vw - 24px);
+  }
+  .orbito-panel {
+    position: fixed;
+    left: 8px;
+    right: 8px;
+    bottom: 182px;
+    width: auto;
+    max-height: calc(100vh - 52px - 190px);
+  }
+}
+
+/* Landscape phones: ~150px for the whole panel. Keep header, log and input;
+   the starter chips are a shortcut, typing still works. */
+@media (max-height: 500px) {
+  .orbito-chips {
+    display: none;
+  }
+  .orbito-log {
+    min-height: 0;
+  }
+}

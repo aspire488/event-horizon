@@ -914,7 +914,8 @@ select:focus-visible {
   opacity: 1;
 }
 
-.event-row.kind-blackhole {
+.event-row.kind-blackhole,
+.event-row.kind-capture {
   border-left-color: var(--violet);
 }
 
@@ -922,7 +923,8 @@ select:focus-visible {
   border-left-color: rgba(160, 132, 255, 0.7);
 }
 
-.event-row.kind-supernova {
+.event-row.kind-supernova,
+.event-row.kind-collapse {
   border-left-color: var(--danger);
 }
 
@@ -934,7 +936,7 @@ select:focus-visible {
   border-left-color: var(--ok);
 }
 
-.event-row.kind-shockwave {
+.event-row.kind-slingshot {
   border-left-color: #ffd9a5;
 }
 

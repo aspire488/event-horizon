@@ -141,7 +141,7 @@ export type EventKind =
   | 'absorb'
   | 'merge'
   | 'supernova'
-  | 'shockwave'
+  | 'slingshot'
   | 'collapse'
   | 'discovery'
   | 'capture'
